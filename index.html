@@ -158,6 +158,73 @@
         .historia { max-width: 62ch; margin: 0 auto; color: var(--suau); font-size: clamp(1rem, 2vw, 1.12rem); line-height: 1.6; }
         .historia b { color: var(--text); }
 
+
+        /* ================= LANDING ================= */
+        .landing { position: fixed; inset: 0; z-index: 70; overflow-y: auto; overflow-x: hidden; background: var(--nit); scroll-behavior: smooth; }
+        .landing[hidden] { display: none; }
+        body.amb-landing { overflow: hidden; }
+        .l-portada { position: relative; min-height: 100svh; display: grid; place-items: center; text-align: center; padding: 80px 16px 90px; overflow: hidden; }
+        .l-portada-fons {
+            position: absolute; inset: -4%; background: url("img/poble.jpg") center / cover;
+            animation: l-zoom 30s ease-in-out infinite alternate;
+        }
+        .l-portada-fons::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 48%, rgba(20, 11, 38, .62) 0%, rgba(20, 11, 38, .35) 45%, rgba(20, 11, 38, .7) 85%), linear-gradient(180deg, transparent 60%, var(--nit) 99%); }
+        @keyframes l-zoom { from { transform: scale(1); } to { transform: scale(1.08) translateY(-1%); } }
+        .l-portada-contingut { position: relative; max-width: 760px; display: grid; justify-items: center; gap: 1rem; }
+        .l-etiqueta { font-weight: 800; font-size: .78rem; letter-spacing: .18em; text-transform: uppercase; color: var(--or); padding: .45rem 1rem; border-radius: 99px; border: 1px solid var(--vora); background: rgba(20, 11, 38, .6); }
+        .landing h1 {
+            font-family: var(--f-titol); font-weight: 400; font-size: clamp(2.8rem, 10vw, 6.2rem); line-height: .98; margin: .2rem 0;
+            background: linear-gradient(180deg, #ffe7a3 10%, var(--carbassa) 60%, var(--carbassa-fosc));
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+            filter: drop-shadow(0 5px 0 #2a0f4a) drop-shadow(0 0 40px rgba(255, 138, 31, .45));
+        }
+        .l-lema { font-size: clamp(1.05rem, 2.4vw, 1.3rem); line-height: 1.55; color: #ece0ff; max-width: 52ch; text-shadow: 0 2px 10px rgba(0, 0, 0, .7); }
+        .l-lema b { color: var(--or); }
+        .l-jugar {
+            margin-top: .6rem; padding: 1.1rem 3rem; border-radius: 22px; font-family: var(--f-titol); font-size: clamp(1.6rem, 4vw, 2.2rem); color: #2a1200;
+            background: linear-gradient(180deg, #ffc27a, var(--carbassa)); box-shadow: 0 6px 0 var(--carbassa-fosc), 0 0 0 0 rgba(255, 138, 31, .6), 0 20px 50px -10px rgba(255, 138, 31, .8);
+            animation: l-crida 2.2s ease-in-out infinite; transition: transform .15s;
+        }
+        .l-jugar:hover { transform: translateY(-3px) scale(1.03); }
+        .l-jugar:active { transform: translateY(3px); }
+        @keyframes l-crida { 50% { box-shadow: 0 6px 0 var(--carbassa-fosc), 0 0 0 14px rgba(255, 138, 31, 0), 0 20px 50px -10px rgba(255, 138, 31, .8); } }
+        .l-xips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: .4rem; }
+        .l-xips span { padding: .45rem .9rem; border-radius: 99px; font-weight: 800; font-size: .88rem; background: rgba(20, 11, 38, .7); border: 1px solid var(--vora); }
+        .l-baixa { position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); font-size: 2.2rem; color: var(--or); text-decoration: none; animation: l-bota 1.6s ease-in-out infinite; }
+        @keyframes l-bota { 50% { transform: translate(-50%, 8px); } }
+
+        .l-bloc { max-width: 1100px; margin: 0 auto; padding: clamp(2.5rem, 7vw, 4.5rem) 16px; }
+        .l-bloc h2, .l-final h2 { font-family: var(--f-titol); font-weight: 400; font-size: clamp(2rem, 5vw, 3rem); text-align: center; color: var(--or); margin-bottom: 1.8rem; text-shadow: 0 3px 0 #2a0f4a; }
+        .l-bloc h3 { font-family: var(--f-titol); font-weight: 400; font-size: 1.4rem; color: var(--text); margin: .6rem 0 .3rem; }
+        .l-bloc p { color: var(--suau); line-height: 1.55; }
+        .l-bloc p b { color: var(--text); }
+
+        .l-personatges { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.2rem; }
+        .l-pers { text-align: center; padding: 1.6rem 1.2rem; border-radius: 26px; background: var(--pedra); border: 1px solid var(--vora); }
+        .l-pers-img { display: grid; place-items: center; }
+        .l-pers .j-retrat { width: 120px !important; height: 120px !important; }
+
+        .l-passos { list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1rem; counter-reset: pas; }
+        .l-passos li { position: relative; padding: 1.4rem 1.2rem 1.2rem; border-radius: 22px; background: linear-gradient(180deg, rgba(123, 79, 214, .2), rgba(20, 11, 38, .35)), var(--pedra); border: 1px solid var(--vora); }
+        .l-num { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; font-family: var(--f-titol); font-size: 1.4rem; color: #5a1d00; background: radial-gradient(circle at 35% 30%, #ffd98a, var(--carbassa) 60%, var(--carbassa-fosc)); box-shadow: 0 4px 12px rgba(255, 138, 31, .4); }
+        .l-nota { text-align: center; margin-top: 1.4rem; padding: .9rem 1.2rem; border-radius: 16px; background: rgba(255, 207, 92, .08); border: 1px dashed var(--vora); }
+
+        .l-llocs { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 1rem; }
+        .l-lloc { position: relative; border-radius: 20px; overflow: hidden; aspect-ratio: 4 / 3; border: 1px solid var(--vora); background: #1b0f30; }
+        .l-lloc img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s; }
+        .l-lloc:hover img { transform: scale(1.06); }
+        .l-lloc div { position: absolute; inset: auto 0 0 0; padding: 2.2rem .9rem .8rem; background: linear-gradient(180deg, transparent, rgba(10, 5, 20, .92)); }
+        .l-lloc small { display: block; font-weight: 800; font-size: .72rem; letter-spacing: .12em; color: var(--or); text-transform: uppercase; }
+        .l-lloc b { display: block; font-family: var(--f-titol); font-weight: 400; font-size: 1.2rem; }
+        .l-lloc span { font-size: .82rem; color: var(--suau); }
+
+        .l-continguts { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; text-align: center; }
+        .l-continguts > div { padding: 1.6rem 1.2rem; border-radius: 24px; background: var(--pedra); border: 1px solid var(--vora); }
+        .l-continguts > div > span { display: block; font-size: 3rem; line-height: 1.2; color: var(--or); }
+
+        .l-final { text-align: center; padding: 3rem 16px 5rem; background: radial-gradient(ellipse at 50% 100%, rgba(255, 138, 31, .18), transparent 60%); }
+        .l-final p { margin-top: 1.4rem; color: var(--suau); font-size: .85rem; }
+
         /* ---------- Mapa del poble amb marcadors ---------- */
         .ajuda-mapa { text-align: center; color: var(--suau); font-weight: 700; margin: 0 0 .8rem; }
         .pins { position: absolute; inset: 0; z-index: 2; }
@@ -422,6 +489,72 @@
             <button id="reiniciar">Reiniciar la partida (docent)</button>
         </footer>
     </div>
+
+    <!-- ================= LANDING: presentació del joc ================= -->
+    <section class="landing" id="landing" aria-labelledby="l-titol">
+        <!-- Portada -->
+        <header class="l-portada">
+            <div class="l-portada-fons" aria-hidden="true"></div>
+            <div class="l-portada-contingut">
+                <span class="l-etiqueta">🎃 Escape room de Música · 2n i 3r d'ESO 🌰</span>
+                <h1 id="l-titol">El Misteri Musical<br>de la Nit</h1>
+                <p class="l-lema">La nit de la Castanyada, un bruixot va estornudar… i la música del poble es va trencar en <b>8 segells</b>. Teniu <b>50 minuts</b> per recuperar-la.</p>
+                <button class="l-jugar" data-jugar>🎃 Jugar</button>
+                <div class="l-xips">
+                    <span>⏳ 50 minuts</span><span>👥 Equips de 2 a 5</span><span>🗺️ 8 reptes</span><span>🔊 Amb so</span>
+                </div>
+            </div>
+            <a class="l-baixa" href="#l-historia" aria-label="Veure com es juga">⌄</a>
+        </header>
+
+        <!-- La història -->
+        <section class="l-bloc" id="l-historia">
+            <h2>La història</h2>
+            <div class="l-personatges">
+                <article class="l-pers"><div class="l-pers-img" data-retrat="bruixot"></div>
+                    <h3>El Bruixot Estornut</h3><p>Al·lèrgic a la pols de castanya. Un <b>ATXIM!</b> seu ha trencat la Melodia de la Nit. No és dolent… només molt despistat.</p></article>
+                <article class="l-pers"><div class="l-pers-img" data-retrat="marrameu"></div>
+                    <h3>Marrameu</h3><p>El gat del poble. Us guiarà per tots els llocs, us donarà <b>pistes</b>… i farà acudits amb miaus.</p></article>
+                <article class="l-pers"><div class="l-pers-img" data-retrat="castanyera"></div>
+                    <h3>La Castanyera</h3><p>Ven castanyes a la plaça i us ajudarà quan les coses es compliquin. Calentetes i grossetes!</p></article>
+            </div>
+        </section>
+
+        <!-- Com es juga -->
+        <section class="l-bloc">
+            <h2>Com es juga</h2>
+            <ol class="l-passos">
+                <li><span class="l-num">1</span><h3>Formeu l'equip</h3><p>Escriviu els vostres noms. Els personatges us parlaran pel vostre nom.</p></li>
+                <li><span class="l-num">2</span><h3>Recorreu el poble</h3><p>Al mapa hi ha 8 llocs. Cada repte superat us dona un <b>segell</b>: una lletra o un número. Apunteu-lo!</p></li>
+                <li><span class="l-num">3</span><h3>Compte amb el rellotge</h3><p>Cada repte perdut i cada <b>pista</b> de Marrameu resten <b>1 minut</b>. Fallar té conseqüències!</p></li>
+                <li><span class="l-num">4</span><h3>Obriu el bagul</h3><p>Escriviu els 8 segells en ordre al bagul encantat abans que s'acabin els 50 minuts.</p></li>
+            </ol>
+            <p class="l-nota">🔒 Cada ordinador té <b>segells diferents</b>: copiar la contrasenya del grup del costat no serveix de res.</p>
+        </section>
+
+        <!-- Els 8 llocs -->
+        <section class="l-bloc">
+            <h2>Els 8 llocs del poble</h2>
+            <div class="l-llocs" id="l-llocs"></div>
+        </section>
+
+        <!-- Què hi treballareu -->
+        <section class="l-bloc">
+            <h2>Què hi treballareu</h2>
+            <div class="l-continguts">
+                <div><span class="musica">𝅘𝅥𝅮</span><h3>Ritme</h3><p>Figures, silencis, valors i compassos de 2/4, 3/4 i 4/4. Escoltar i llegir ritmes.</p></div>
+                <div><span class="musica">𝄞</span><h3>Nom de les notes</h3><p>Do, Re, Mi, Fa, Sol, La, Si en clau de sol, amb línies addicionals… i d'oïda.</p></div>
+                <div><span>🎻</span><h3>Instruments</h3><p>Famílies: corda, vent fusta, vent metall i percussió. I les trampes de sempre!</p></div>
+            </div>
+        </section>
+
+        <!-- Crida final -->
+        <section class="l-final">
+            <h2>Preparats per salvar la Castanyada?</h2>
+            <button class="l-jugar" data-jugar>🎃 Jugar</button>
+            <p>AulaTech · L'aula que jugues</p>
+        </section>
+    </section>
 
     <!-- Pantalla d'inici -->
     <div class="pantalla" id="p-inici" role="dialog" aria-modal="true" aria-labelledby="t-inici">
@@ -829,7 +962,7 @@
             document.querySelectorAll('.j-dialeg').forEach(d => d.remove());
             document.querySelectorAll('.pantalla.oberta').forEach(p => p.classList.remove('oberta'));
             document.getElementById('form-equip').reset();
-            aturaFesta(); pinta(); tic(); window.scrollTo(0, 0); obre('p-inici');
+            aturaFesta(); pinta(); tic(); window.scrollTo(0, 0); mostraLanding();
         }
         document.getElementById('tornar-inici').addEventListener('click', novaPartida);
         document.getElementById('victoria-inici').addEventListener('click', novaPartida);
@@ -905,12 +1038,31 @@
         const pintaEquip = () => { document.getElementById('equip').textContent = `Codi d'equip: ${Joc.codiEquip()} · els segells d'aquest ordinador són únics`; };
         pintaEquip();
 
+
+        // ---------- Landing ----------
+        const landing = document.getElementById('landing');
+        const CONTINGUT_LLOCS = ['Nom de les notes', 'Ritme (escoltar)', 'Vocabulari musical', 'Notes d\'oïda', 'Instruments', 'Figures i valors', 'Compassos', 'Repàs final'];
+        document.getElementById('l-llocs').innerHTML = REPTES.map(([, titol], i) => `
+            <figure class="l-lloc"><img src="img/lloc-${i + 1}.jpg" alt="" loading="lazy">
+                <div><small>Repte ${ROMANS[i]}</small><b>${titol}</b><span>${CONTINGUT_LLOCS[i]}</span></div></figure>`).join('');
+        landing.querySelectorAll('[data-retrat]').forEach(el => { el.innerHTML = Joc.retrat(el.dataset.retrat, 120); });
+        function mostraLanding() { landing.hidden = false; landing.scrollTop = 0; document.body.classList.add('amb-landing'); }
+        function amagaLanding() { landing.hidden = true; document.body.classList.remove('amb-landing'); }
+        landing.querySelectorAll('[data-jugar]').forEach(b => b.addEventListener('click', () => {
+            engegaAmbient(); so.segell(0);
+            amagaLanding(); obre('p-inici');
+            setTimeout(() => document.querySelector('.nom-membre').focus(), 300);
+        }));
+
         // ---------- Arrencada ----------
         pinta(); tic();
         document.getElementById('retrat-inici').innerHTML = Joc.retrat('bruixot', 110);
         if (new URLSearchParams(location.search).has('nova')) { history.replaceState(null, '', location.pathname); novaPartida(); }
-        else if (!estat.inici) obre('p-inici');
-        else if (estat.guanyat) { /* partida acabada: es veu el bagul obert */ missatge.textContent = '🎶 El bagul ja està obert. Bona Castanyada!'; }
+        else if (!estat.inici) mostraLanding();
+        else {
+            amagaLanding();
+            if (estat.guanyat) missatge.textContent = '🎶 El bagul ja està obert. Bona Castanyada!'; // partida acabada: es veu el bagul obert
+        }
         // Retrat del bruixot a la pantalla de fi de temps
         document.getElementById('retrat-temps').innerHTML = Joc.retrat('bruixot', 110);
         // En tornar d'un minijoc (també des de la memòria cau del navegador), refresca l'estat
