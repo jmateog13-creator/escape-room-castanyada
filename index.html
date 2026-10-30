@@ -1057,7 +1057,9 @@
         // ---------- Arrencada ----------
         pinta(); tic();
         document.getElementById('retrat-inici').innerHTML = Joc.retrat('bruixot', 110);
-        if (new URLSearchParams(location.search).has('nova')) { history.replaceState(null, '', location.pathname); novaPartida(); }
+        // Partida desada que no serveix: d'una versió anterior (sense noms), sense rellotge o de fa més de 3 hores
+        const partidaVella = estat.inici && (!estat.noms || !estat.noms.length || !estat.durada || Date.now() - estat.inici > 3 * 3600000);
+        if (new URLSearchParams(location.search).has('nova') || partidaVella) { history.replaceState(null, '', location.pathname); novaPartida(); }
         else if (!estat.inici) mostraLanding();
         else {
             amagaLanding();
