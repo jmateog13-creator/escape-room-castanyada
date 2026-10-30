@@ -9,7 +9,7 @@ El Bruixot Estornut ha trencat la Melodia de la Nit en 8 segells. Cal recórrer 
 - Cada repte superat dona un **segell** (una lletra o un número). Cal escriure'ls al bagul en ordre (I → VIII).
 - **Cada ordinador té segells diferents** (llavor aleatòria desada al navegador): copiar la contrasenya d'un altre grup no serveix. Cada grup ha de jugar sempre al mateix ordinador i navegador.
 - Cada repte perdut, cada intent fallit al bagul i cada **pista** (botó 💡, 3 per repte) **resten 1 minut** del rellotge.
-- **Final**: si obren el bagul, la Melodia de la Nit torna a sonar; si s'acaba el temps, el bruixot es queda la música. En tots dos casos poden veure el seu **diploma** (`diploma.html`), que es pot imprimir o desar en PDF.
+- **Final**: si obren el bagul, la Melodia de la Nit torna a sonar; si s'acaba el temps, surt la pantalla «S'ha acabat el temps» i el bruixot es queda la música. En tots dos casos poden veure el seu **diploma** (`diploma.html`), que es pot imprimir o desar en PDF, i el botó **«Tornar a l'inici»** deixa l'ordinador a punt per al grup següent (partida nova i segells nous).
 - No es pot copiar, enganxar ni fer captures sense que el bruixot ho vegi.
 
 ## Els 8 reptes

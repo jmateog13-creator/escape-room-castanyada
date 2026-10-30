@@ -345,6 +345,9 @@
         }
         .form-equip input:focus { border-color: var(--or); box-shadow: 0 0 0 3px rgba(255, 207, 92, .25); }
         .form-equip .boto-gran { justify-self: center; }
+        .fi-temps { background: radial-gradient(circle at 50% 35%, rgba(90, 20, 40, .94), rgba(10, 5, 20, .98)); }
+        .rellotge-zero { font-family: var(--f-titol); font-size: clamp(3rem, 12vw, 5.5rem); line-height: 1; color: #ff7a6b !important; margin: .6rem 0 0 !important; text-shadow: 0 0 30px rgba(255, 122, 107, .6); animation: batec 1s ease-in-out infinite; }
+        .fi-temps .xip { text-decoration: none; }
         .temps-gran { font-family: var(--f-titol); font-size: 3rem; color: var(--or); margin: .4rem 0 0; }
         .xip[aria-pressed="true"] { background: var(--carbassa); color: #2a1200; border-color: var(--carbassa); }
         .petit { font-size: .82rem; opacity: .8; }
@@ -470,20 +473,22 @@
             <div class="fitxa-botons">
                 <a class="boto-gran" href="diploma.html">🎓 Veure el diploma</a>
                 <button class="xip" id="tancar-victoria">Tornar al mapa</button>
+                <button class="xip" id="victoria-inici">🔄 Tornar a l'inici</button>
             </div>
         </div>
     </div>
 
     <!-- Pantalla de temps esgotat -->
-    <div class="pantalla" id="p-temps" role="dialog" aria-modal="true" aria-labelledby="t-temps">
+    <div class="pantalla fi-temps" id="p-temps" role="dialog" aria-modal="true" aria-labelledby="t-temps">
         <div class="caixa">
             <span class="gran-emoji" id="retrat-temps">⌛</span>
+            <p class="rellotge-zero">⌛ 00:00</p>
             <h2 id="t-temps">S'ha acabat el temps!</h2>
             <p>El bruixot s'ha endut el bagul a la seva torre… La Melodia de la Nit haurà d'esperar a l'any que ve.</p>
             <p id="resum-temps"></p>
             <div class="fitxa-botons">
-                <a class="boto-gran" href="diploma.html">🎓 Veure el diploma</a>
-                <button class="xip" id="continuar">Seguir jugant fora de temps</button>
+                <button class="boto-gran" id="tornar-inici">🔄 Tornar a l'inici</button>
+                <a class="xip" href="diploma.html">🎓 Veure el diploma</a>
             </div>
         </div>
     </div>
@@ -816,33 +821,40 @@
             b.addEventListener('click', () => Joc.diu(qui, Joc.tria(FRASES[qui])));
             repartiment.appendChild(b);
         });
-        document.getElementById('continuar').addEventListener('click', () => {
-            // Passa a cronòmetre: compta el temps total des de l'inici
-            estat.foraDeTemps = true; estat.durada = 0; estat.penal = 0; desa(); tanca('p-temps'); tic();
-        });
-        document.getElementById('tancar-victoria').addEventListener('click', () => { tanca('p-victoria'); aturaFesta(); });
-        document.getElementById('reiniciar').addEventListener('click', () => {
-            if (!confirm('Segur que voleu esborrar els segells i començar de nou?')) return;
+        // Torna a la pantalla d'inici amb una partida nova (segells nous) per al grup següent
+        function novaPartida() {
             estat = estatBuit(); desa(); Joc.novaLlavor(); pintaEquip();
             caselles.forEach(c => c.value = '');
             missatge.textContent = ''; avisTemps = false;
-            tanca('p-victoria'); aturaFesta(); pinta(); tic(); obre('p-inici');
+            document.querySelectorAll('.j-dialeg').forEach(d => d.remove());
+            document.querySelectorAll('.pantalla.oberta').forEach(p => p.classList.remove('oberta'));
+            document.getElementById('form-equip').reset();
+            aturaFesta(); pinta(); tic(); window.scrollTo(0, 0); obre('p-inici');
+        }
+        document.getElementById('tornar-inici').addEventListener('click', novaPartida);
+        document.getElementById('victoria-inici').addEventListener('click', novaPartida);
+        document.getElementById('tancar-victoria').addEventListener('click', () => { tanca('p-victoria'); aturaFesta(); });
+        document.getElementById('reiniciar').addEventListener('click', () => {
+            if (!confirm('Segur que voleu esborrar els segells i començar de nou?')) return;
+            novaPartida();
         });
 
         // Final quan s'acaba el temps: el bruixot es queda la música
         const segellsBons = () => { const c = Joc.contrasenya(); return estat.segells.filter((v, i) => v === c[i]).length; };
         async function finalTemps() {
+            const jaVist = !!estat.fiTemps;
             if (!estat.fiTemps) { estat.fiTemps = Date.now(); estat.segellsFinal = segellsBons(); desa(); }
             const superats = (estat.superats || []).filter(Boolean).length;
             document.getElementById('resum-temps').innerHTML =
                 `🏅 Reptes superats: <b>${superats} de 8</b> · 🔑 Segells al bagul: <b>${estat.segellsFinal} de 8</b>`;
             document.querySelectorAll('.pantalla.oberta').forEach(p => p.classList.remove('oberta'));
-            await Joc.dialeg([
+            if (!jaVist) await Joc.dialeg([
                 { qui: 'bruixot', text: 'A… a… <b>ATXIIIM!</b> Tic-tac, s\'ha acabat el temps! Em quedo el bagul… i la Melodia de la Nit, a la meva torre.' },
                 { qui: 'castanyera', text: `No patiu, {noms}: heu superat <b>${superats} reptes</b>. Això és molta música recuperada!` },
-                { qui: 'marrameu', text: 'Miau… L\'any que ve tornarem a intentar-ho. Mentrestant, aquí teniu el vostre <b>diploma</b>.' },
+                { qui: 'marrameu', text: 'Miau… L\'any que ve tornarem a intentar-ho. Gràcies per jugar, {noms}!' },
             ], { boto: 'Veure el resultat' });
             obre('p-temps');
+            document.getElementById('tornar-inici').focus();
         }
 
         async function victoria() {
@@ -896,7 +908,8 @@
         // ---------- Arrencada ----------
         pinta(); tic();
         document.getElementById('retrat-inici').innerHTML = Joc.retrat('bruixot', 110);
-        if (!estat.inici) obre('p-inici');
+        if (new URLSearchParams(location.search).has('nova')) { history.replaceState(null, '', location.pathname); novaPartida(); }
+        else if (!estat.inici) obre('p-inici');
         else if (estat.guanyat) { /* partida acabada: es veu el bagul obert */ missatge.textContent = '🎶 El bagul ja està obert. Bona Castanyada!'; }
         // Retrat del bruixot a la pantalla de fi de temps
         document.getElementById('retrat-temps').innerHTML = Joc.retrat('bruixot', 110);

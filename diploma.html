@@ -126,7 +126,7 @@
 
     <div class="eines">
         <button class="boto" id="imprimir">🖨️ Imprimir o desar en PDF</button>
-        <a class="boto fantasma" href="index.html">← Tornar al mapa</a>
+        <a class="boto fantasma" id="tornar" href="index.html">← Tornar al mapa</a>
     </div>
 
     <article class="diploma" id="diploma" aria-label="Diploma">
@@ -217,6 +217,8 @@
 
         if (!e.inici) $('avis').textContent = 'Aquest és un exemple: el diploma de veritat surt quan un equip acaba la partida.';
         $('imprimir').addEventListener('click', () => window.print());
+        // Partida acabada (bagul obert o temps esgotat): el botó porta a l'inici amb una partida nova
+        if (guanyat || e.fiTemps) { $('tornar').textContent = '🔄 Tornar a l\'inici'; $('tornar').href = 'index.html?nova'; }
         document.title = `Diploma · ${llistaNoms}`;
     </script>
 </body>
