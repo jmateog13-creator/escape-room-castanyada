@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>La Porta del Bruixot · Escape Room de la Nit</title>
+<link rel="stylesheet" href="comu.css?v=2">
+<style>
+/* ---------- Duel: el bruixot a la porta + barra d'estornuts ---------- */
+.duel { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 1rem; align-items: center; margin: .8rem 0 1rem; }
+.porta {
+    position: relative; width: 120px; height: 140px; display: grid; place-items: end center; padding-bottom: 10px;
+    border-radius: 60px 60px 10px 10px; border: 4px solid #3d2614;
+    background: repeating-linear-gradient(90deg, #6b3f1f 0 18px, #5a3318 18px 20px), #6b3f1f;
+    box-shadow: inset 0 0 24px rgba(0, 0, 0, .6), 0 10px 26px -10px rgba(0, 0, 0, .9);
+}
+.porta .espelma { position: absolute; top: -10px; right: -16px; }
+.bruixot { display: inline-block; }
+.bruixot.cop { animation: cop .55s; }
+.bruixot.riu { animation: riu .3s 3; }
+@keyframes cop { 20% { transform: scale(1.15) rotate(-10deg); } 55% { transform: scale(.94) rotate(7deg); } }
+@keyframes riu { 50% { transform: translateY(-8px) rotate(3deg); } }
+.dany {
+    position: absolute; left: 50%; top: 10px; transform: translateX(-50%); white-space: nowrap; pointer-events: none;
+    font-weight: 900; font-size: 1.15rem; color: var(--or); text-shadow: 0 2px 0 #2a0f4a;
+    animation: puja 1.1s ease-out forwards;
+}
+@keyframes puja { to { transform: translate(-50%, -60px); opacity: 0; } }
+
+.bombolla-b {
+    position: relative; padding: .6rem .9rem; margin-bottom: .7rem; border-radius: 16px 16px 16px 4px;
+    background: rgba(34, 17, 61, .9); border: 2px solid #b58cff; font-weight: 700; line-height: 1.35; min-height: 2.6em;
+}
+.bombolla-b small { display: block; font-family: var(--f-titol); color: #b58cff; font-size: .95rem; font-weight: 400; }
+.estornut-cap { display: flex; justify-content: space-between; font-weight: 800; font-size: .85rem; color: var(--suau); margin-bottom: 4px; }
+.estornut-cap b { color: var(--text); font-variant-numeric: tabular-nums; }
+.barra-e { height: 18px; border-radius: 99px; overflow: hidden; background: rgba(255, 255, 255, .08); border: 1px solid var(--vora); }
+.barra-e i { display: block; height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, #b58cff, #ff8fb1, var(--or)); transition: width .6s cubic-bezier(.2, 1.3, .4, 1); }
+.barra-e.apunt { animation: batec .8s ease-in-out infinite; border-color: var(--or); }
+@keyframes batec { 50% { box-shadow: 0 0 18px rgba(255, 207, 92, .6); } }
+@media (max-width: 480px) {
+    .duel { grid-template-columns: 1fr; justify-items: center; }
+    .duel-dreta { width: 100%; }
+    .porta { width: 104px; height: 120px; }
+}
+
+/* Vides */
+#vides { gap: 2px; }
+
+/* ---------- Temporitzador ---------- */
+.rellotge { position: relative; height: 22px; border-radius: 99px; overflow: hidden; margin-bottom: 1rem; background: rgba(255, 255, 255, .07); border: 1px solid var(--vora); }
+.rellotge i { display: block; height: 100%; width: 100%; background: linear-gradient(90deg, var(--verd), #c6f08a); }
+.rellotge.poc i { background: linear-gradient(90deg, var(--vermell), var(--carbassa)); }
+.rellotge.pausa i { opacity: .35; }
+.rellotge span { position: absolute; inset: 0; display: grid; place-items: center; font-weight: 800; font-size: .8rem; color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, .8); }
+
+/* ---------- Carta de pregunta ---------- */
+.carta { padding: 1.1rem; border-radius: 20px; background: rgba(20, 11, 38, .45); border: 1px solid var(--vora); }
+.tipus { display: inline-block; padding: 4px 10px; border-radius: 99px; font-size: .75rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; background: var(--pedra-2); }
+.tipus.vf { color: #b58cff; } .tipus.escolta { color: var(--verd); } .tipus.lectura { color: var(--or); }
+.enunciat { font-size: clamp(1.1rem, 3.6vw, 1.35rem); line-height: 1.4; margin: .6rem 0 .9rem; font-weight: 700; }
+.enunciat b { color: var(--or); }
+.escolta-box { text-align: center; margin-bottom: .9rem; }
+.visual:empty { display: none; }
+.visual { margin-bottom: 1rem; display: grid; justify-items: center; }
+.penta { width: 100%; max-width: 420px; padding: 4px 12px; }
+.paper-ritme { display: flex; align-items: center; justify-content: center; gap: .7rem; flex-wrap: wrap; padding: .9rem 1.1rem; max-width: 100%; }
+.paper-ritme .j-ritme { flex-wrap: wrap; row-gap: .2em; }
+.paper-ritme .barra-fi { align-self: stretch; width: 3px; border-left: 2px solid var(--tinta); }
+.paper-ritme .indicacio { display: grid; justify-items: center; line-height: .82; font-family: Georgia, 'Times New Roman', serif; font-weight: 900; font-size: 1.7rem; }
+.paper-ritme .forat { align-self: center; padding: .2rem .6rem; border: 2px dashed rgba(43, 26, 12, .45); border-radius: 10px; font-weight: 900; font-size: 1.3rem; }
+.figura-gran { font-family: var(--f-musica); font-size: 4.6rem; line-height: 1; padding: .7rem 1.6rem 1rem; }
+
+.j-opcio { position: relative; }
+.j-opcio kbd { position: absolute; top: 4px; left: 8px; font: 700 .65rem var(--f-text); color: var(--suau); opacity: .7; }
+@media (hover: none) { .j-opcio kbd { display: none; } }
+.j-opcions.vf { grid-template-columns: 1fr 1fr; }
+.j-opcions.vf3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.j-opcions.vf3 .j-opcio { padding: 1rem .4rem; }
+.j-opcions.vf .j-opcio { font-size: 1.2rem; padding: 1.2rem .8rem; }
+.j-opcions.ritmes { grid-template-columns: 1fr; }
+.j-opcions.ritmes .j-opcio { display: flex; align-items: center; gap: .8rem; justify-content: center; flex-wrap: wrap; }
+.j-opcions.figs .j-opcio { font-family: var(--f-musica); font-size: 2.2rem; line-height: 1; }
+.j-opcions.pentes { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+.j-opcions.pentes .j-opcio { padding: .5rem; }
+.mini { padding: 2px 6px; border-radius: 10px; }
+.lletra { font-weight: 900; color: var(--or); }
+
+.explica { margin-top: 1rem; padding: .8rem 1rem; border-radius: 14px; background: rgba(255, 255, 255, .05); border-left: 4px solid var(--verd); line-height: 1.5; }
+.explica.malament { border-left-color: var(--vermell); }
+.explica b { color: var(--or); }
+.seguent-box { text-align: center; margin-top: 1rem; }
+.ajuda-teclat { text-align: center; margin-top: .9rem; font-size: .8rem; color: var(--suau); }
+@media (hover: none) { .ajuda-teclat { display: none; } }
+
+/* ---------- Gran esternut final ---------- */
+.atxim { position: fixed; inset: 0; z-index: 48; display: grid; place-items: center; pointer-events: none; background: radial-gradient(circle, rgba(181, 140, 255, .35), rgba(10, 5, 20, .7)); animation: j-fos .2s; }
+.atxim b { font-family: var(--f-titol); font-weight: 400; font-size: clamp(3rem, 15vw, 7rem); color: var(--or); text-shadow: 0 6px 0 #2a0f4a, 0 0 40px rgba(255, 138, 31, .7); animation: atxim 1.6s cubic-bezier(.2, 1.6, .4, 1) forwards; }
+@keyframes atxim { 0% { transform: scale(.2) rotate(-10deg); } 30% { transform: scale(1.15) rotate(3deg); } 45% { transform: scale(1) translateX(-10px); } 55% { transform: translateX(10px); } 65% { transform: none; } 100% { transform: scale(1.05); opacity: .95; } }
+@keyframes j-fos { from { opacity: 0; } }
+</style>
+</head>
+<body>
+<main class="j-main">
+    <section class="j-panell">
+        <h1 class="j-h1">La Porta del Bruixot</h1>
+
+        <div class="duel">
+            <div class="porta" id="porta"><div class="bruixot" id="bruixot"></div></div>
+            <div class="duel-dreta">
+                <div class="bombolla-b" id="bDiu" aria-live="polite"><small>El Bruixot Estornut</small>Qui gosa trucar a la meva porta?</div>
+                <div class="estornut-cap"><span>🤧 Barra d'estornuts</span><b id="pctE">0%</b></div>
+                <div class="barra-e" id="barraEBox" role="progressbar" aria-label="Barra d'estornuts" aria-valuemin="0" aria-valuemax="100"><i id="barraE"></i></div>
+            </div>
+        </div>
+
+        <div class="j-hud">
+            <span class="j-xip" id="vides" aria-label="Vides"></span>
+            <span class="j-xip">❓ Pregunta <b id="nPreg">1/12</b></span>
+            <span class="j-xip">🔥 Ratxa <b id="ratxa">0</b></span>
+        </div>
+
+        <div class="rellotge" id="rellotgeBox" aria-hidden="true"><i id="rellotge"></i><span id="tempsText">15 s</span></div>
+
+        <article class="carta" id="carta">
+            <span class="tipus" id="tipus"></span>
+            <h2 class="enunciat" id="enunciat"></h2>
+            <div class="escolta-box" id="escoltaBox" hidden><button class="j-boto lila" id="escolta">🔊 Escolta</button></div>
+            <div class="visual" id="visual"></div>
+            <div class="j-opcions" id="opcions"></div>
+            <div class="explica" id="explica" hidden aria-live="polite"></div>
+            <div class="seguent-box"><button class="j-boto verd" id="seguent" hidden>Següent →</button></div>
+        </article>
+        <p class="ajuda-teclat">Teclat: <b>1–4</b> per respondre (o <b>V</b>/<b>M</b>) · <b>R</b> torna a escoltar · <b>Enter</b> següent</p>
+    </section>
+</main>
+
+<script src="comu.js?v=2"></script>
+<script>
+(function () {
+    'use strict';
+    const $ = id => document.getElementById(id);
+    const F = Joc.FIGURES;
+    const BASE = 12;          // preguntes de la partida
+    const DURADA = 15000;     // ms per pregunta
+    const VERD = '#2f9a52';
+
+    // ---------- Utilitats musicals ----------
+    const nom = p => Joc.infoPosicio(p).nom;
+    const midi = p => Joc.infoPosicio(p).midi;
+    const rang = (a, b) => Array.from({ length: b - a + 1 }, (_, i) => a + i);
+    const U = k => Math.round(F[k].valor * 4);                       // unitats de semicorxera
+    const fmt = u => { const e = Math.floor(u / 4), fr = ['', '¼', '½', '¾'][u % 4]; return e ? e + fr : (fr || '0'); };
+    const penta = (notes, amplada = 360, gap = 14) => `<div class="j-paper penta">${Joc.pentagrama(notes, { amplada, gap })}</div>`;
+    const paperRitme = (r, { mida = 2.3, compas = 0, forat = false } = {}) => `<div class="j-paper paper-ritme">` +
+        (compas ? `<span class="indicacio"><span>${compas}</span><span>4</span></span>` : '') +
+        Joc.ritmeHTML(r, { mida }) + (forat ? '<span class="forat">?</span>' : '') + '<span class="barra-fi"></span></div>';
+    const LLETRES = ['A', 'B', 'C', 'D'];
+    // On és la nota al pentagrama (per a les explicacions)
+    function onEs(p) {
+        if (p === -2) return 'a la línia addicional de sota';
+        if (p === -1) return 'just sota la 1a línia';
+        if (p === 9) return 'just damunt de la 5a línia';
+        if (p === 10) return 'a la línia addicional de dalt';
+        if (p % 2 === 0) return `a la ${p / 2 + 1}a línia`;
+        return `al ${['1r', '2n', '3r', '4t'][(p - 1) / 2]} espai`;
+    }
+    const del = n => `del ${n}`; // "del Do", "del La"...
+    // Opcions: la correcta + distractors, barrejades. Retorna { opcions, correcta }.
+    function ambDistractors(bona, altres, n = 4) {
+        const op = Joc.barreja([bona, ...Joc.barreja(altres.filter(x => x !== bona)).slice(0, n - 1)]);
+        return { opcions: op, correcta: op.indexOf(bona) };
+    }
+
+    // =====================================================================
+    // BANC DE PREGUNTES (el docent el pot ampliar aquí)
+    // Cada partida en tria 12: 4 de veritat o mite (3 d'instruments + 1 de teoria),
+    // 4 d'escolta i 4 de lectura ràpida, i les barreja. Si cal, se'n treuen d'extra.
+    // =====================================================================
+
+    // a) VERITAT O MITE — { t: afirmació, v: true si és veritat, e: explicació d'una línia, instr: és d'instruments }
+    const BANC_VF = [
+        { instr: true, v: false, t: 'El <b>saxòfon</b> és un instrument de vent metall.', e: 'És de metall, però el so el fa vibrar una <b>canya</b>: és de <b>vent fusta</b>.' },
+        { instr: true, v: true, t: 'La <b>flauta travessera</b> és de vent fusta, encara que sigui de metall.', e: 'Es classifica per com fa el so (l\'aire xoca amb un bisell), no pel material.' },
+        { instr: true, v: true, t: 'El <b>piano</b> és un instrument de corda percudida.', e: 'Quan premem les tecles, uns <b>martellets</b> colpegen les cordes.' },
+        { instr: true, v: false, t: 'La <b>guitarra</b> és un instrument de corda fregada.', e: 'És de <b>corda pinçada</b>: les cordes es pincen amb els dits. Les fregades es toquen amb arc.' },
+        { instr: true, v: true, t: 'El <b>violoncel</b> és un instrument de corda fregada.', e: 'Es toca fregant les cordes amb un <b>arc</b>, com el violí.' },
+        { instr: true, v: true, t: 'El <b>xilòfon</b> és un instrument de percussió afinada.', e: 'Les seves làmines fan <b>notes concretes</b>: Do, Re, Mi...' },
+        { instr: true, v: false, t: 'La <b>caixa</b> és un instrument de percussió afinada.', e: 'La caixa no fa notes concretes: és <b>percussió no afinada</b>.' },
+        { instr: true, v: true, t: 'La <b>trompeta</b> i el <b>trombó</b> són instruments de vent metall.', e: 'El so neix de la vibració dels <b>llavis</b> a l\'embocadura.' },
+        { instr: true, v: true, t: 'El <b>clarinet</b> fa so gràcies a una canya.', e: 'Té una <b>canya simple</b>: per això és de vent fusta.' },
+        { instr: true, v: false, t: 'L\'<b>arpa</b> és un instrument de corda fregada.', e: 'L\'arpa és de <b>corda pinçada</b>: les cordes es pincen amb els dits.' },
+        { instr: true, v: true, t: 'Els <b>timbals</b> de l\'orquestra són percussió afinada.', e: 'Es poden afinar per fer <b>notes concretes</b>.' },
+        { instr: true, v: false, t: 'La <b>tuba</b> és l\'instrument més agut del vent metall.', e: 'Ben al contrari: és el <b>més greu</b> de la família.' },
+        { instr: true, v: true, t: 'El <b>fagot</b> és un instrument de vent fusta.', e: 'Té una <b>canya doble</b>, com l\'oboè.' },
+        { instr: true, v: false, t: 'El <b>contrabaix</b> és l\'instrument més agut de la corda fregada.', e: 'És el <b>més greu</b>; el més agut és el violí.' },
+        { instr: true, v: false, t: 'El <b>triangle</b> és de vent metall perquè és de metall.', e: 'El triangle es colpeja: és <b>percussió no afinada</b>.' },
+        { v: true, t: 'Una <b>blanca</b> dura el mateix que dues negres.', e: 'Blanca = 2 temps; negra = 1 temps.' },
+        { v: false, t: 'Una <b>corxera</b> dura més que una negra.', e: 'La corxera dura <b>la meitat</b> d\'una negra (½ temps).' },
+        { v: true, t: 'En un compàs de <b>3/4</b> hi caben tres negres.', e: 'El 3 de dalt indica que hi ha <b>3 temps de negra</b>.' },
+        { v: false, t: 'Un <b>silenci</b> vol dir que la música s\'ha acabat.', e: 'És un moment sense so que també <b>es compta</b>, com una figura.' },
+        { v: true, t: 'El <b>punt</b> al costat d\'una figura hi afegeix la meitat del seu valor.', e: 'Per exemple: blanca amb punt = 2 + 1 = <b>3 temps</b>.' },
+        { v: true, t: 'En clau de sol, la nota de la <b>2a línia</b> és el Sol.', e: 'La clau de sol comença a la 2a línia i li dona el nom.' },
+        { v: false, t: 'Les notes <b>agudes</b> s\'escriuen més avall al pentagrama.', e: 'Com <b>més amunt</b>, més aguda és la nota.' },
+        { v: false, t: 'En un compàs de <b>2/4</b> hi cap una rodona.', e: 'La rodona dura 4 temps i el 2/4 només en té <b>2</b>.' },
+        { v: true, t: 'Dues <b>corxeres</b> duren el mateix que una negra.', e: '½ + ½ = <b>1 temps</b>.' },
+        { v: true, t: 'El pentagrama té <b>cinc</b> línies.', e: '"Penta" vol dir cinc: <b>5 línies i 4 espais</b>.' },
+        { v: true, t: 'La <b>semicorxera</b> dura la meitat d\'una corxera.', e: 'Dura ¼ de temps: en una negra n\'hi caben <b>4</b>.' },
+    ];
+    const preguntaVF = d => ({
+        tipus: 'vf', enunciat: d.t, opcions: ['✅ Veritat', '🪄 Mite'], correcta: d.v ? 0 : 1, classe: 'vf',
+        explica: `<b>${d.v ? 'Veritat' : 'Mite'}.</b> ${d.e}`,
+    });
+
+    // b) ESCOLTA I RESPON — cada funció genera una pregunta nova amb notes/ritmes a l'atzar
+    function dues(aguda) {
+        let a, b;
+        do { a = Joc.tria(rang(-2, 9)); b = Joc.tria(rang(-2, 9)); } while (Math.abs(a - b) < 2 || Math.abs(a - b) > 6);
+        const k = aguda ? (a > b ? 0 : 1) : (a < b ? 0 : 1);
+        return {
+            tipus: 'escolta', enunciat: `Sonaran dues notes. <b>Quina és més ${aguda ? 'aguda' : 'greu'}?</b>`,
+            opcions: ['La 1a', 'La 2a'], correcta: k, classe: 'vf',
+            so: async () => { const t = Joc.so.ara() + .1; Joc.so.nota(midi(a), { t, dur: .8 }); Joc.so.nota(midi(b), { t: t + .9, dur: .9 }); await Joc.espera(1900); },
+            despres: penta([{ p: a, etiqueta: '1a · ' + nom(a), color: k === 0 ? VERD : '' }, { p: b, etiqueta: '2a · ' + nom(b), color: k === 1 ? VERD : '' }]),
+            explica: `Era la <b>${k ? '2a' : '1a'}</b> (${nom(k ? b : a)}). ${aguda ? 'Com més aguda, més amunt s\'escriu.' : 'Les notes greus s\'escriuen més avall.'}`,
+        };
+    }
+    function quantes(min, pas) {
+        const n = min + Math.floor(Math.random() * 4);
+        const notes = [];
+        while (notes.length < n) { const p = Joc.tria(rang(0, 8)); if (p !== notes[notes.length - 1]) notes.push(p); }
+        return {
+            tipus: 'escolta', enunciat: `Compteu bé... <b>Quantes notes han sonat?</b>`,
+            opcions: rang(min, min + 3).map(String), correcta: n - min,
+            so: async () => { const t = Joc.so.ara() + .1; notes.forEach((p, i) => Joc.so.nota(midi(p), { t: t + i * pas, dur: pas * .9 })); await Joc.espera(n * pas * 1000 + 500); },
+            despres: penta(notes.map(p => ({ p }))),
+            explica: `Han sonat <b>${n}</b> notes.`,
+        };
+    }
+    // Ritmes de 4 temps; amb percussió una blanca sonaria igual que negra + silenci, per això només negres i corxeres
+    const SENSE_SILENCI = [['negra', 'negra', 'corxera', 'corxera', 'negra'], ['corxera', 'corxera', 'corxera', 'corxera', 'negra', 'negra'], ['negra', 'corxera', 'corxera', 'negra', 'negra'], ['negra', 'negra', 'negra', 'negra']];
+    const AMB_SILENCI = [['negra', 'sNegra', 'negra', 'negra'], ['corxera', 'corxera', 'negra', 'sNegra', 'negra'], ['negra', 'negra', 'sNegra', 'corxera', 'corxera'], ['sNegra', 'negra', 'corxera', 'corxera', 'negra']];
+    function silencis() {
+        const te = Math.random() < .5, r = Joc.tria(te ? AMB_SILENCI : SENSE_SILENCI);
+        return {
+            tipus: 'escolta', enunciat: 'Primer sonen 4 clics de compte. Escolteu la caixa... <b>Aquest ritme té algun silenci?</b>',
+            opcions: ['Sí, en té', 'No, cap'], correcta: te ? 0 : 1, classe: 'vf',
+            so: () => Joc.so.ritme(r, { tempo: 84, compte: 4, instrument: 'caixa' }),
+            despres: paperRitme(r),
+            explica: te ? 'Sí: hi havia un <b>silenci de negra</b> (un temps sense so mentre el metrònom seguia).' : 'Cap silenci: tots els temps tenien so.',
+        };
+    }
+    function quinaNota() {
+        let c;
+        do { c = Joc.barreja(rang(0, 10)).slice(0, 3).sort((x, y) => x - y); } while (c[1] - c[0] < 3 || c[2] - c[1] < 3);
+        c = Joc.barreja(c);
+        const k = Math.floor(Math.random() * 3);
+        return {
+            tipus: 'escolta', enunciat: 'Primer sona un <b>Do</b> de referència i després la nota misteriosa. <b>Quina d\'aquestes notes ha sonat?</b>',
+            visual: penta(c.map((p, i) => ({ p, etiqueta: LLETRES[i] }))),
+            opcions: LLETRES.slice(0, 3), correcta: k, classe: 'vf3',
+            so: async () => { const t = Joc.so.ara() + .1; Joc.so.nota(60, { t, dur: .8, vol: .16 }); Joc.so.nota(midi(c[k]), { t: t + 1.1, dur: 1.1 }); await Joc.espera(2300); },
+            despres: penta(c.map((p, i) => ({ p, etiqueta: `${LLETRES[i]} · ${nom(p)}`, color: i === k ? VERD : '' }))),
+            explica: `Ha sonat el <b>${nom(c[k])}</b> (${LLETRES[k]}). Com més lluny del Do, més salt sentireu.`,
+        };
+    }
+    // Ritmes sense silencis i amb patrons d'atac tots diferents
+    const RITMES_4 = [['negra', 'negra', 'negra', 'negra'], ['corxera', 'corxera', 'negra', 'negra', 'negra'], ['negra', 'corxera', 'corxera', 'negra', 'corxera', 'corxera'],
+        ['negraP', 'corxera', 'negra', 'negra'], ['negra', 'negra', 'corxera', 'corxera', 'corxera', 'corxera'], ['semicorxera', 'semicorxera', 'semicorxera', 'semicorxera', 'negra', 'negra', 'negra'],
+        ['blanca', 'negra', 'negra'], ['negra', 'blanca', 'corxera', 'corxera']];
+    function quinRitme() {
+        const tres = Joc.barreja(RITMES_4).slice(0, 3), k = Math.floor(Math.random() * 3);
+        return {
+            tipus: 'escolta', enunciat: 'Després del compte de 4... <b>Quin d\'aquests ritmes ha sonat?</b>', classe: 'ritmes',
+            opcions: tres.map((r, i) => `<span class="lletra">${LLETRES[i]}</span>${Joc.ritmeHTML(r, { mida: 1.7 })}`), correcta: k,
+            so: () => Joc.so.ritme(tres[k], { tempo: 84, compte: 4, instrument: 'fusta' }),
+            explica: `Era el ritme <b>${LLETRES[k]}</b>.`,
+        };
+    }
+    function direccio() {
+        const tipus = Joc.tria(['puja', 'baixa', 'muntanya']);
+        const pas = () => 1 + Math.floor(Math.random() * 2);
+        let notes;
+        if (tipus === 'puja') { notes = [Joc.tria(rang(-2, 2))]; for (let i = 0; i < 3; i++) notes.push(notes[i] + pas()); }
+        else if (tipus === 'baixa') { notes = [Joc.tria(rang(7, 10))]; for (let i = 0; i < 3; i++) notes.push(notes[i] - pas()); }
+        else { const a = Joc.tria(rang(-1, 3)); notes = [a, a + 2, a + 4, a + 1]; }
+        const op = ['⬆️ Puja', '⬇️ Baixa', '⛰️ Puja i baixa'];
+        return {
+            tipus: 'escolta', enunciat: 'Escolteu la melodia de 4 notes. <b>Què fa?</b>', opcions: op, correcta: ['puja', 'baixa', 'muntanya'].indexOf(tipus), classe: 'vf3',
+            so: async () => { const t = Joc.so.ara() + .1; notes.forEach((p, i) => Joc.so.nota(midi(p), { t: t + i * .45, dur: .5 })); await Joc.espera(2300); },
+            despres: penta(notes.map(p => ({ p, etiqueta: nom(p) }))),
+            explica: `La melodia <b>${['puja', 'baixa', 'puja i després baixa'][['puja', 'baixa', 'muntanya'].indexOf(tipus)]}</b>: mireu com es mouen les notes al pentagrama.`,
+        };
+    }
+    function iguals() {
+        const a = Joc.tria(rang(-1, 8)), igual = Math.random() < .5;
+        const b = igual ? a : a + Joc.tria([-4, -3, -2, 2, 3, 4]);
+        return {
+            tipus: 'escolta', enunciat: 'Sonaran dues notes. <b>Són iguals o diferents?</b>', opcions: ['🟰 Iguals', '↕️ Diferents'], correcta: igual ? 0 : 1, classe: 'vf',
+            so: async () => { const t = Joc.so.ara() + .1; Joc.so.nota(midi(a), { t, dur: .8 }); Joc.so.nota(midi(b), { t: t + .95, dur: .9 }); await Joc.espera(2000); },
+            despres: penta([{ p: a, etiqueta: nom(a) }, { p: b, etiqueta: nom(b) }]),
+            explica: igual ? `Eren iguals: dos <b>${nom(a)}</b>.` : `Eren diferents: <b>${nom(a)}</b> i <b>${nom(b)}</b>.`,
+        };
+    }
+    function compasOida() {
+        const n = Joc.tria([2, 3, 4]), tempo = 104, negra = 60 / tempo, compassos = n === 2 ? 4 : 3;
+        return {
+            tipus: 'escolta', enunciat: 'El bombo marca el <b>primer temps</b> de cada compàs. <b>Quin compàs és?</b>', opcions: ['2/4', '3/4', '4/4'], correcta: n - 2, classe: 'vf3',
+            so: async () => {
+                const t = Joc.so.ara() + .15;
+                for (let i = 0; i < n * compassos; i++) {
+                    if (i % n === 0) { Joc.so.cop('bombo', t + i * negra); Joc.so.cop('fusta', t + i * negra, 1); } else Joc.so.cop('fusta', t + i * negra, .5);
+                }
+                await Joc.espera(n * compassos * negra * 1000 + 400);
+            },
+            explica: `L'accent queia cada <b>${n}</b> temps: és un <b>${n}/4</b>.`,
+        };
+    }
+    const RITMES_COPS = [['negra', 'negra', 'corxera', 'corxera', 'negra'], ['corxera', 'corxera', 'sNegra', 'negra', 'negra'], ['negra', 'sNegra', 'negra', 'sNegra'], ['corxera', 'corxera', 'corxera', 'corxera', 'negra', 'sNegra'],
+        ['negra', 'corxera', 'corxera', 'corxera', 'corxera', 'negra'], ['sNegra', 'corxera', 'corxera', 'negra', 'negra'], ['negra', 'negra', 'negra', 'sNegra']];
+    function cops() {
+        const r = Joc.tria(RITMES_COPS), n = r.filter(k => !F[k].silenci).length;
+        const ini = Math.max(2, n - Math.floor(Math.random() * 4));
+        return {
+            tipus: 'escolta', enunciat: 'Després del compte de 4 clics... <b>Quants cops ha sonat la caixa?</b>',
+            opcions: rang(ini, ini + 3).map(String), correcta: n - ini,
+            so: () => Joc.so.ritme(r, { tempo: 88, compte: 4, instrument: 'caixa' }),
+            despres: paperRitme(r),
+            explica: `La caixa ha sonat <b>${n}</b> cops (els silencis no sonen!).`,
+        };
+    }
+    function agudaDeTres() {
+        let c;
+        do { c = Joc.barreja(rang(-2, 10)).slice(0, 3); } while (Math.min(...c.map((p, i) => Math.min(...c.filter((_, j) => j !== i).map(q => Math.abs(p - q))))) < 2);
+        const k = c.indexOf(Math.max(...c));
+        return {
+            tipus: 'escolta', enunciat: 'Sonaran tres notes. <b>Quina és la més aguda?</b>', opcions: ['La 1a', 'La 2a', 'La 3a'], correcta: k, classe: 'vf3',
+            so: async () => { const t = Joc.so.ara() + .1; c.forEach((p, i) => Joc.so.nota(midi(p), { t: t + i * .8, dur: .8 })); await Joc.espera(2700); },
+            despres: penta(c.map((p, i) => ({ p, etiqueta: `${i + 1}a · ${nom(p)}`, color: i === k ? VERD : '' }))),
+            explica: `La més aguda era la <b>${k + 1}a</b> (${nom(c[k])}): és la que està més amunt.`,
+        };
+    }
+    function melodia() {
+        const FORMES = [[0, 2, 4], [4, 2, 0], [0, 3, 1], [3, 0, 2], [0, 0, 4], [4, 4, 0]];
+        const base = Joc.tria(rang(0, 4));
+        const tres = Joc.barreja(FORMES).slice(0, 3).map(f => f.map(x => x + base)), k = Math.floor(Math.random() * 3);
+        return {
+            tipus: 'escolta', enunciat: 'Sonarà una melodia de 3 notes. <b>Quina d\'aquestes és?</b>', classe: 'pentes',
+            opcions: tres.map((m, i) => `<span class="lletra">${LLETRES[i]}</span><div class="j-paper mini">${Joc.pentagrama(m.map(p => ({ p })), { amplada: 200, gap: 9 })}</div>`), correcta: k,
+            so: async () => { const t = Joc.so.ara() + .1; tres[k].forEach((p, i) => Joc.so.nota(midi(p), { t: t + i * .6, dur: .7 })); await Joc.espera(2200); },
+            explica: `Era la <b>${LLETRES[k]}</b>: ${tres[k].map(nom).join(' – ')}.`,
+        };
+    }
+    const BANC_ESCOLTA = [
+        () => dues(true), () => dues(false), () => quantes(3, .42), () => quantes(4, .3), silencis, quinaNota, quinRitme,
+        direccio, iguals, compasOida, cops, agudaDeTres, melodia,
+    ];
+
+    // c) LECTURA RÀPIDA — també generades a l'atzar
+    function nomNota(posicions) {
+        const p = Joc.tria(posicions);
+        const { opcions, correcta } = ambDistractors(nom(p), Joc.NOMS);
+        return {
+            tipus: 'lectura', enunciat: '<b>Quina nota és?</b>', visual: penta([{ p }], 300), opcions, correcta,
+            despres: penta([{ p, color: VERD, etiqueta: nom(p) }], 300),
+            explica: `És el <b>${nom(p)}</b>: està ${onEs(p)}.`,
+        };
+    }
+    function trobaNota() {
+        const c = [], noms = new Set();
+        for (const p of Joc.barreja(rang(-2, 10))) { if (!noms.has(nom(p))) { noms.add(nom(p)); c.push(p); } if (c.length === 4) break; }
+        const k = Math.floor(Math.random() * 4);
+        return {
+            tipus: 'lectura', enunciat: `<b>Quina d'aquestes notes és el ${nom(c[k])}?</b>`,
+            visual: penta(c.map((p, i) => ({ p, etiqueta: LLETRES[i] }))), opcions: LLETRES.slice(), correcta: k,
+            despres: penta(c.map((p, i) => ({ p, etiqueta: `${LLETRES[i]} · ${nom(p)}`, color: i === k ? VERD : '' }))),
+            explica: `El ${nom(c[k])} és la <b>${LLETRES[k]}</b>: està ${onEs(c[k])}.`,
+        };
+    }
+    const COMPASSOS = {
+        2: [['negra', 'negra'], ['corxera', 'corxera', 'negra'], ['negraP', 'corxera'], ['corxera', 'sCorxera', 'negra'], ['blanca']],
+        3: [['blanca', 'negra'], ['negra', 'negra', 'negra'], ['blancaP'], ['negraP', 'corxera', 'negra'], ['negra', 'sNegra', 'negra'], ['corxera', 'corxera', 'corxera', 'corxera', 'negra']],
+        4: [['blanca', 'blanca'], ['negra', 'negra', 'blanca'], ['rodona'], ['blancaP', 'negra'], ['negraP', 'corxera', 'blanca'], ['sBlanca', 'negra', 'negra']],
+    };
+    function quinCompas() {
+        const n = Joc.tria([2, 3, 4]), r = Joc.tria(COMPASSOS[n]);
+        return {
+            tipus: 'lectura', enunciat: 'Sumeu els temps... <b>Quin compàs és?</b>', visual: paperRitme(r), opcions: ['2/4', '3/4', '4/4'], correcta: n - 2, classe: 'vf3',
+            explica: `${r.map(k => fmt(U(k))).join(' + ')} = <b>${n}</b> temps → <b>${n}/4</b>.`,
+        };
+    }
+    const FIG_NOTES = ['rodona', 'blancaP', 'blanca', 'negraP', 'negra', 'corxera', 'semicorxera'];
+    function valorFigura() {
+        const k = Joc.tria(FIG_NOTES.filter(x => x !== 'negra'));
+        const totes = FIG_NOTES.map(x => fmt(U(x)));
+        const { opcions, correcta } = ambDistractors(fmt(U(k)), totes);
+        const ord = opcions.map((o, i) => ({ o, i })).sort((a, b) => totes.indexOf(b.o) - totes.indexOf(a.o));
+        return {
+            tipus: 'lectura', enunciat: '<b>Quants temps de negra dura aquesta figura?</b>', visual: `<div class="j-paper figura-gran">${F[k].glif}</div>`,
+            opcions: ord.map(x => x.o), correcta: ord.findIndex(x => x.i === correcta),
+            explica: `${F[k].nom}: <b>${fmt(U(k))}</b> temps.${k.endsWith('P') ? ' (El punt hi afegeix la meitat.)' : ''}`,
+        };
+    }
+    function nomFigura() {
+        // Només silencis de negra i corxera: sense pentagrama, els de rodona i blanca no es distingeixen
+        const pool = [...FIG_NOTES, 'sNegra', 'sCorxera'], k = Joc.tria(pool);
+        const { opcions, correcta } = ambDistractors(F[k].nom, [...pool.map(x => F[x].nom), 'Silenci de blanca']);
+        return {
+            tipus: 'lectura', enunciat: '<b>Com es diu aquesta figura?</b>', visual: `<div class="j-paper figura-gran">${F[k].glif}</div>`, opcions, correcta, classe: 'vf',
+            explica: `És una <b>${F[k].nom.toLowerCase()}</b>, i dura ${fmt(U(k))} temps.`,
+        };
+    }
+    const EQUIVAL = [
+        ['corxeres', 'una blanca', 4], ['negres', 'una rodona', 4], ['semicorxeres', 'una negra', 4], ['corxeres', 'una negra amb punt', 3],
+        ['negres', 'una blanca amb punt', 3], ['corxeres', 'un compàs de 3/4', 6], ['semicorxeres', 'una corxera', 2], ['blanques', 'un compàs de 4/4', 2], ['corxeres', 'un compàs de 4/4', 8],
+    ];
+    function equivalencia() {
+        const [que, on, n] = Joc.tria(EQUIVAL);
+        const { opcions } = ambDistractors(n, [1, 2, 3, 4, 6, 8]);
+        opcions.sort((a, b) => a - b);
+        return {
+            tipus: 'lectura', enunciat: `<b>Quantes ${que} caben en ${on}?</b>`, opcions: opcions.map(String), correcta: opcions.indexOf(n),
+            explica: `En ${on} hi caben <b>${n} ${que}</b>.`,
+        };
+    }
+    const COMPLETA = [
+        { c: 3, r: ['negra', 'corxera', 'corxera'], f: 'negra' }, { c: 4, r: ['blanca', 'negra'], f: 'negra' }, { c: 4, r: ['negra'], f: 'blancaP' },
+        { c: 2, r: ['corxera'], f: 'negraP' }, { c: 3, r: ['negra'], f: 'blanca' }, { c: 4, r: ['negraP', 'corxera'], f: 'blanca' },
+        { c: 2, r: ['corxera', 'semicorxera', 'semicorxera'], f: 'negra' }, { c: 3, r: ['blanca', 'corxera'], f: 'corxera' }, { c: 4, r: ['blancaP', 'corxera'], f: 'corxera' },
+    ];
+    function completaCompas() {
+        const d = Joc.tria(COMPLETA);
+        const { opcions, correcta } = ambDistractors(d.f, ['rodona', 'blancaP', 'blanca', 'negraP', 'negra', 'corxera']);
+        return {
+            tipus: 'lectura', enunciat: `<b>Quina figura completa aquest compàs de ${d.c}/4?</b>`, visual: paperRitme(d.r, { compas: d.c, forat: true }),
+            opcions: opcions.map(k => F[k].glif), correcta, classe: 'figs',
+            explica: `Falten ${fmt(d.c * 4 - d.r.reduce((s, k) => s + U(k), 0))} temps: una <b>${F[d.f].nom.toLowerCase()}</b>.`,
+        };
+    }
+    function agudaVista() {
+        let a, b;
+        do { a = Joc.tria(rang(-2, 10)); b = Joc.tria(rang(-2, 10)); } while (Math.abs(a - b) < 1);
+        const k = a > b ? 0 : 1;
+        return {
+            tipus: 'lectura', enunciat: '<b>Quina d\'aquestes dues notes és més aguda?</b>', visual: penta([{ p: a, etiqueta: '1a' }, { p: b, etiqueta: '2a' }], 300),
+            opcions: ['La 1a', 'La 2a'], correcta: k, classe: 'vf',
+            despres: penta([{ p: a, etiqueta: '1a · ' + nom(a), color: k === 0 ? VERD : '' }, { p: b, etiqueta: '2a · ' + nom(b), color: k === 1 ? VERD : '' }], 300),
+            explica: `La <b>${k + 1}a</b> (${nom(k ? b : a)}): està més amunt al pentagrama.`,
+        };
+    }
+    function escala() {
+        const i = Math.floor(Math.random() * 7), puja = Math.random() < .5;
+        const bona = Joc.NOMS[(i + (puja ? 1 : 6)) % 7];
+        const { opcions, correcta } = ambDistractors(bona, Joc.NOMS.filter(n => n !== Joc.NOMS[i]));
+        return {
+            tipus: 'lectura', enunciat: `En l'escala, <b>quina nota ve just ${puja ? 'després' : 'abans'} ${del(Joc.NOMS[i])}?</b>`, opcions, correcta,
+            explica: puja ? `Pujant: ${Joc.NOMS[i]} → <b>${bona}</b>. (Do, Re, Mi, Fa, Sol, La, Si, Do...)` : `Baixant: ${Joc.NOMS[i]} → <b>${bona}</b>. (Do, Si, La, Sol, Fa, Mi, Re, Do...)`,
+        };
+    }
+    function suma() {
+        const r = Array.from({ length: 3 }, () => Joc.tria(['blanca', 'negra', 'corxera', 'negraP', 'corxera']));
+        const s = r.reduce((t, k) => t + U(k), 0);
+        const alt = [s - 4, s - 2, s + 2, s + 4, s + 8].filter(x => x > 0); // distractors de ±½ i ±1 temps
+        const { opcions } = ambDistractors(s, alt);
+        opcions.sort((a, b) => a - b);
+        return {
+            tipus: 'lectura', enunciat: '<b>Quants temps sumen aquestes figures?</b>', visual: paperRitme(r), opcions: opcions.map(fmt), correcta: opcions.indexOf(s),
+            explica: `${r.map(k => fmt(U(k))).join(' + ')} = <b>${fmt(s)}</b> temps.`,
+        };
+    }
+    const BANC_LECTURA = [
+        () => nomNota([0, 2, 4, 6, 8]), () => nomNota([1, 3, 5, 7]), () => nomNota([-2, -1, 9, 10]), trobaNota, quinCompas, valorFigura,
+        nomFigura, equivalencia, completaCompas, agudaVista, escala, suma, () => nomNota(rang(-2, 10)),
+    ];
+
+    // ---------- Estat de la partida ----------
+    let e = null, reserva = null, potRespondre = false, sonant = false;
+
+    function novaPartida() {
+        const instr = Joc.barreja(BANC_VF.filter(d => d.instr)), teo = Joc.barreja(BANC_VF.filter(d => !d.instr));
+        const vf = [...instr.slice(0, 3), teo[0]].map(preguntaVF);
+        const esc = Joc.barreja(BANC_ESCOLTA).slice(0, 4).map(g => g());
+        const lec = Joc.barreja(BANC_LECTURA).slice(0, 4).map(g => g());
+        // Comencem amb un veritat o mite per escalfar; la resta, barrejada
+        const llista = [vf[0], ...Joc.barreja([...vf.slice(1), ...esc, ...lec])];
+        reserva = Joc.barreja([...instr.slice(3), ...teo.slice(1)]);
+        e = { vides: 3, estornut: 0, ratxa: 0, millor: 0, encerts: 0, idx: 0, llista, q: null, respost: false, avisMeitat: false, avisExtra: false };
+        pintaHud();
+    }
+    // Pregunta extra (si el bruixot encara aguanta després de les 12)
+    function extra() {
+        const r = Math.random();
+        if (r < .34 && reserva.length) return preguntaVF(reserva.pop());
+        return (r < .67 ? Joc.tria(BANC_ESCOLTA) : Joc.tria(BANC_LECTURA))();
+    }
+
+    // ---------- HUD ----------
+    function pintaHud() {
+        $('vides').innerHTML = [0, 1, 2].map(i => Joc.icona('carbassa', 24, i < e.vides ? '' : 'apagada')).join('');
+        $('vides').setAttribute('aria-label', `Vides: ${e.vides}`);
+        $('ratxa').textContent = e.ratxa;
+        $('nPreg').textContent = e.idx < BASE ? `${e.idx + 1}/${BASE}` : 'extra';
+        $('barraE').style.width = e.estornut + '%';
+        $('pctE').textContent = e.estornut + '%';
+        $('barraEBox').setAttribute('aria-valuenow', e.estornut);
+        $('barraEBox').classList.toggle('apunt', e.estornut >= 75 && e.estornut < 100);
+    }
+    function bruixotDiu(text) {
+        $('bDiu').innerHTML = `<small>El Bruixot Estornut</small>${text}`;
+        Joc.reinicia($('bDiu'), 'j-pop');
+    }
+
+    // ---------- Temporitzador ----------
+    let tIni = 0, tRaf = 0, tActiu = false, tRestant = 1, ultimSeg = 99;
+    function pintaTemps() {
+        $('rellotge').style.width = (tRestant * 100) + '%';
+        $('rellotgeBox').classList.toggle('poc', tRestant < .34);
+        $('tempsText').textContent = Math.ceil(tRestant * DURADA / 1000) + ' s';
+    }
+    // tGastat: ms ja consumits abans d'una pausa (pista o diàleg); en reprendre es continua des d'aquí
+    let tGastat = 0, tPausat = false;
+    const enPausa = () => tPausat || (Joc.enPausa ? Joc.enPausa() : false);
+    function bucleTemps() {
+        cancelAnimationFrame(tRaf);
+        const pas = () => {
+            if (!tActiu || tPausat) return;
+            tRestant = Math.max(0, 1 - (tGastat + performance.now() - tIni) / DURADA);
+            pintaTemps();
+            // Tic-tac els últims 5 segons
+            const seg = Math.ceil(tRestant * DURADA / 1000);
+            if (seg <= 5 && seg < ultimSeg && seg > 0) { ultimSeg = seg; Joc.so.cop('clic', undefined, 1.4); }
+            if (tRestant <= 0) { tActiu = false; respon(-1); return; }
+            tRaf = requestAnimationFrame(pas);
+        };
+        tRaf = requestAnimationFrame(pas);
+    }
+    function iniciaTemps() {
+        tIni = performance.now(); tGastat = 0; tActiu = true; ultimSeg = 99;
+        $('rellotgeBox').classList.remove('pausa');
+        if (Joc.enPausa && Joc.enPausa()) { pausaTemps(); return; }
+        bucleTemps();
+    }
+    function pausaTemps() {
+        if (!tActiu || tPausat) return;
+        tGastat += performance.now() - tIni;
+        tPausat = true;
+        cancelAnimationFrame(tRaf);
+        $('rellotgeBox').classList.add('pausa');
+        $('tempsText').textContent = '⏸ En pausa';
+    }
+    function reprenTemps() {
+        if (!tPausat) return;
+        tPausat = false;
+        if (!tActiu) return;
+        tIni = performance.now();
+        $('rellotgeBox').classList.remove('pausa');
+        bucleTemps();
+    }
+    function aturaTemps() { tActiu = false; tPausat = false; cancelAnimationFrame(tRaf); }
+    // Pista o diàleg obert (comu.js): el rellotge s'atura sense penalitzar
+    window.addEventListener('joc-pausa', pausaTemps);
+    window.addEventListener('joc-repren', reprenTemps);
+
+    // ---------- Preguntes ----------
+    const TIPUS = { vf: '🪄 Veritat o mite', escolta: '👂 Escolta i respon', lectura: '⚡ Lectura ràpida' };
+    function mostra() {
+        const q = e.idx < e.llista.length ? e.llista[e.idx] : extra();
+        if (e.idx === BASE && !e.avisExtra) {
+            e.avisExtra = true;
+            Joc.diu('marrameu', 'El bruixot encara aguanta! Preguntes <b>extra</b> fins que estornudi... o fins que us quedin carbasses!', 4200);
+        }
+        e.q = q; e.respost = false;
+        pintaHud();
+        const t = $('tipus'); t.textContent = TIPUS[q.tipus]; t.className = 'tipus ' + q.tipus;
+        $('enunciat').innerHTML = q.enunciat;
+        $('visual').innerHTML = q.visual || '';
+        $('opcions').className = 'j-opcions ' + (q.classe || '');
+        $('opcions').innerHTML = q.opcions.map((o, i) => `<button class="j-opcio" data-i="${i}"><kbd>${i + 1}</kbd>${o}</button>`).join('');
+        $('explica').hidden = true;
+        $('seguent').hidden = true;
+        Joc.reinicia($('carta'), 'j-entra');
+        tRestant = 1; pintaTemps();
+        if (q.so) {
+            $('escoltaBox').hidden = false;
+            $('escolta').textContent = '🔊 Escolta';
+            activa(false);
+            $('rellotgeBox').classList.add('pausa');
+            $('tempsText').textContent = 'Escolteu primer...';
+            setTimeout(() => { if (e.q === q) escolta(); }, 450);
+        } else {
+            $('escoltaBox').hidden = true;
+            activa(true);
+            iniciaTemps();
+        }
+    }
+    function activa(si) {
+        potRespondre = si;
+        $('opcions').querySelectorAll('.j-opcio').forEach(b => { b.disabled = !si; });
+    }
+    async function escolta() {
+        const q = e.q;
+        if (!q || !q.so || sonant) return;
+        sonant = true; $('escolta').disabled = true;
+        await q.so();
+        sonant = false; $('escolta').disabled = false;
+        if (e.q !== q) return;
+        $('escolta').textContent = '🔁 Torna-ho a escoltar';
+        // Després de la primera escolta s'activen les opcions i comença el rellotge
+        if (!e.respost && !potRespondre) { activa(true); iniciaTemps(); }
+    }
+
+    const COP = [
+        ['Atx... no, encara no!', 'Snif! Res, res, sort.', 'Bah! Una pessigolleta.'],
+        ['Snif, snif... em pica el nas!', 'A... a... no!', 'Ui, quines pessigolles...'],
+        ['A... aaa... AAAA...', 'No podré aguantar-ho gaire més!', 'Atx... atxí... uf, per poc!'],
+    ];
+    const RIU = ['Ja, ja, ja! Atxím! Perdó...', 'Ha! Això no ho sabíeu!', 'Ja, ja! Fàcil per a un bruixot!', 'Ho sabia! Ja, ja... snif.'];
+    const ANIMS = ['No passa res, miau! Respireu i a la següent.', 'Ups! Fixeu-vos bé en l\'explicació.', 'Aquesta era difícil, miau. Endavant!'];
+
+    function respon(i) {
+        if (e.respost) return;
+        if (i >= 0 && (!potRespondre || enPausa())) return; // en pausa no s'accepta cap resposta
+        const q = e.q;
+        e.respost = true; aturaTemps(); activa(false);
+        const bona = i === q.correcta;
+        $('opcions').querySelectorAll('.j-opcio').forEach((b, j) => {
+            if (j === q.correcta) b.classList.add('be'); else if (j === i) b.classList.add('malament');
+        });
+        if (q.despres) $('visual').innerHTML = q.despres;
+        let cap;
+        if (bona) {
+            e.ratxa++; e.encerts++; e.millor = Math.max(e.millor, e.ratxa);
+            const rapid = tRestant > .6;
+            // Dany: base 6 + fins a 4 per rapidesa + fins a 3 per ratxa
+            const dany = 6 + Math.round(4 * tRestant) + Math.min(e.ratxa - 1, 3);
+            e.estornut = Math.min(100, e.estornut + dany);
+            cop(dany, rapid);
+            Joc.so.be();
+            cap = rapid ? '⚡ Ràpid i correcte!' : '✅ Correcte!';
+            bruixotDiu(e.estornut >= 100 ? 'A... a... AAAAAAA...!' : Joc.tria(COP[e.estornut < 35 ? 0 : e.estornut < 70 ? 1 : 2]));
+            if (e.estornut >= 50 && !e.avisMeitat && e.estornut < 100) { e.avisMeitat = true; Joc.diu('castanyera', 'Ja li regalima el nas! Sou a mig camí, criatures!', 3400); }
+            else if (e.ratxa === 3) Joc.diu('marrameu', 'Ratxa de 3! Al bruixot li fa pampallugues el nas, miau!');
+            else if (e.ratxa === 5) Joc.diu('marrameu', 'Cinc seguides! Sou miau-gnífics!');
+            else if (e.ratxa === 8) Joc.diu('castanyera', 'Quina ratxa! Us faré panellets de premi!');
+        } else {
+            e.ratxa = 0; e.vides--;
+            pintaHud();
+            Joc.so.malament();
+            riu();
+            cap = i < 0 ? '⏰ S\'ha acabat el temps!' : '❌ No era aquesta.';
+            bruixotDiu(Joc.tria(RIU));
+            if (e.vides === 1) Joc.diu('marrameu', 'Compte, només ens queda <b>una carbassa</b>! Penseu-vos-ho bé.', 3400);
+            else if (e.vides > 1) Joc.diu('marrameu', Joc.tria(ANIMS), 2800);
+        }
+        const ex = $('explica');
+        ex.className = 'explica' + (bona ? '' : ' malament');
+        ex.innerHTML = `<b>${cap}</b> ${q.explica}`;
+        ex.hidden = false;
+        pintaHud();
+        if (!bona) { const v = $('vides').children[e.vides]; if (v) Joc.reinicia(v, 'j-tremola'); }
+        const s = $('seguent');
+        s.textContent = e.estornut >= 100 ? 'Feu-lo estornudar! 🤧' : e.vides <= 0 ? 'Oh, no...' : 'Següent →';
+        s.hidden = false;
+        s.focus();
+    }
+
+    function cop(dany, rapid) {
+        Joc.reinicia($('bruixot'), 'cop');
+        const d = document.createElement('span');
+        d.className = 'dany';
+        d.textContent = `+${dany} 🤧${rapid ? ' ⚡' : ''}`;
+        $('porta').appendChild(d);
+        setTimeout(() => d.remove(), 1200);
+        Joc.so.cop('charles', undefined, .8);
+    }
+    function riu() {
+        Joc.reinicia($('bruixot'), 'riu');
+        const t = Joc.so.ara();
+        [74, 72, 69].forEach((m, i) => Joc.so.nota(m, { t: t + .3 + i * .16, dur: .14, vol: .1 }));
+    }
+    function esternut() {
+        const t = Joc.so.ara();
+        [64, 67, 71].forEach((m, i) => Joc.so.nota(m, { t: t + i * .25, dur: .3, vol: .12 }));
+        Joc.so.cop('bombo', t + .85, 1);
+        Joc.so.cop('caixa', t + .85, 1.6);
+        Joc.so.cop('charles', t + .9, 1.5);
+        Joc.so.cop('charles', t + 1, 1.1);
+    }
+
+    function seguent() {
+        if (!e.respost || e.acabat) return;
+        Joc.so.clic();
+        if (e.estornut >= 100) { e.acabat = true; victoria(); return; }
+        if (e.vides <= 0) { e.acabat = true; derrota(); return; }
+        e.idx++;
+        mostra();
+    }
+
+    // Sense carbasses: el bruixot us atrapa (Joc.fracas) i el duel torna a començar amb preguntes noves
+    async function derrota() {
+        $('seguent').hidden = true;
+        bruixotDiu('Ja, ja, ja... <b>ATXÍM!</b> Aquest cop guanyo jo!');
+        esternut();
+        riu();
+        await Joc.espera(700);
+        Joc.fracas({
+            motiu: 'Us heu quedat sense carbasses i el Bruixot Estornut riu tan fort que la porta es tanca de cop. Haureu de tornar a començar el duel des de zero.',
+            reinicia: () => {
+                novaPartida();
+                bruixotDiu('Torneu-hi, si gosseu! Snif.');
+                Joc.diu('marrameu', 'Preguntes noves, miau! Respireu i llegiu bé.', 3000);
+                mostra();
+            },
+        });
+    }
+
+    async function victoria() {
+        $('seguent').hidden = true;
+        $('opcions').querySelectorAll('.j-opcio').forEach(b => { b.disabled = true; });
+        esternut();
+        const a = document.createElement('div');
+        a.className = 'atxim';
+        a.innerHTML = '<b>ATXÍÍÍM!</b>';
+        document.body.appendChild(a);
+        Joc.reinicia($('bruixot'), 'cop');
+        await Joc.espera(1900);
+        a.remove();
+        Joc.guanya({
+            repte: 8,
+            missatge: `Heu fet estornudar el bruixot amb <b>${e.encerts}</b> encerts i una ratxa màxima de <b>${e.millor}</b>.`,
+            resum: 'Ara torneu al bagul: amb els 8 segells s\'obrirà i sonarà la Melodia de la Nit.',
+            epileg: [
+                { qui: 'bruixot', text: '<b>ATXÍÍÍM!</b>... Uf. Ja està, ja ho he tret tot. Us he de confessar una cosa: no sóc dolent... sóc <b>al·lèrgic a la pols de castanya</b>.' },
+                { qui: 'bruixot', text: 'La nit de la Castanyada vaig fer un esternut tan fort que vaig trencar la <b>Melodia de la Nit</b>. Us demano perdó... i gràcies per haver-ne recollit els segells.' },
+                { qui: 'castanyera', text: 'Ai, pobret meu! Té, un <b>panellet sense pols</b>: fet amb amor i sense ni un bri de castanya. Aquesta nit ets convidat a la festa!' },
+                { qui: 'marrameu', text: 'Miau-ravellós final! Ara torneu al <b>bagul</b> i col·loqueu-hi <b>tots els segells</b>: tornarem a sentir la <b>Melodia de la Nit</b>!' },
+            ],
+        });
+    }
+
+    // ---------- Esdeveniments ----------
+    $('opcions').addEventListener('click', ev => { const b = ev.target.closest('.j-opcio'); if (b && !b.disabled) respon(+b.dataset.i); });
+    $('escolta').addEventListener('click', () => escolta());
+    $('seguent').addEventListener('click', seguent);
+    document.addEventListener('keydown', ev => {
+        if (!e || !e.q || document.querySelector('.j-dialeg, .j-premi.obert, .atxim')) return;
+        const enBoto = document.activeElement && document.activeElement.tagName === 'BUTTON';
+        const k = ev.key.toLowerCase();
+        if (!e.respost) {
+            let i = '1234'.indexOf(ev.key);
+            if (e.q.tipus === 'vf' && k === 'v') i = 0;
+            if (e.q.tipus === 'vf' && k === 'm') i = 1;
+            if (i >= 0 && i < e.q.opcions.length) { ev.preventDefault(); respon(i); }
+            else if (k === 'r' && e.q.so) { ev.preventDefault(); escolta(); }
+        } else if ((ev.key === 'Enter' || ev.key === ' ') && !enBoto) { ev.preventDefault(); seguent(); }
+    });
+
+    // ---------- Inici ----------
+    Joc.capcalera({ repte: 8, titol: 'La Porta del Bruixot' });
+    $('bruixot').innerHTML = Joc.retrat('bruixot', 92);
+    $('porta').insertAdjacentHTML('beforeend', `<span class="espelma" aria-hidden="true">${Joc.icona('espelma', 32)}</span>`);
+    novaPartida();
+    Joc.dialeg([
+        { qui: 'marrameu', text: 'Miau... aquesta és <b>la Porta del Bruixot</b>. Darrere hi ha l\'últim segell. Sento ronquets... o són esternuts?' },
+        { qui: 'bruixot', text: 'Qui gosa trucar? Ah, els cuiners de ritmes! Si voleu passar, guanyeu-me un <b>duel de preguntes</b>. A... atx... no, encara no.' },
+        { qui: 'castanyera', text: 'Cada encert li fa pessigolles al nas i omple la seva <b>barra d\'estornuts</b>. Com <b>més ràpid</b> respongueu, més fort! Teniu <b>3 carbasses</b> de vida: cada error o temps esgotat en costa una, i si les perdeu totes, el bruixot us atrapa i torneu a començar.' },
+        { qui: 'marrameu', text: 'Hi haurà <b>veritat o mite</b>, preguntes per <b>escoltar</b> i <b>lectura ràpida</b>, amb <b>15 segons</b> cadascuna. Si el feu estornudar, la porta s\'obrirà. Som-hi, miau-xims!' },
+    ], { boto: 'Que comenci el duel! ⚔️' }).then(() => {
+        bruixotDiu('Primera pregunta... a veure què sabeu!');
+        mostra();
+    });
+
+})();
+</script>
+</body>
+</html>

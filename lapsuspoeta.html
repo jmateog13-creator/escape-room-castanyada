@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>La Parada de la Castanyera</title>
+<link rel="stylesheet" href="comu.css?v=2">
+<style>
+    /* ---------- Parada: Castanyera + torradora ---------- */
+    .parada { display: flex; align-items: center; gap: 14px; margin-bottom: 1rem; flex-wrap: wrap; justify-content: center; }
+    .parada-castanyera { display: flex; align-items: center; gap: 10px; flex: 1 1 260px; min-width: 0; }
+    .parada-castanyera .j-retrat span { font-size: 2rem; }
+    .bombolla {
+        position: relative; flex: 1; min-width: 0; padding: .65rem .9rem; border-radius: 16px 16px 16px 4px;
+        background: rgba(34, 17, 61, .9); border: 2px solid #ff9a4a; font-size: .95rem; line-height: 1.4; min-height: 3.2em;
+    }
+    .bombolla b { color: var(--or); }
+
+    .torradora { position: relative; flex: 0 0 auto; padding: 8px 10px 26px; }
+    .castanyes { position: relative; z-index: 2; display: flex; gap: 4px; justify-content: center; }
+    .paella {
+        position: absolute; left: 0; right: 0; bottom: 14px; height: 30px; z-index: 1;
+        border-radius: 0 0 50% 50% / 0 0 100% 100%;
+        background: radial-gradient(circle, #0c0710 2px, transparent 2.6px) 0 0 / 12px 10px, linear-gradient(180deg, #4a4150, #231c28);
+        box-shadow: inset 0 3px 0 rgba(255, 255, 255, .15);
+    }
+    .paella::after { content: ''; position: absolute; right: -34px; top: 8px; width: 38px; height: 7px; border-radius: 4px; background: #2e2433; }
+    .foc { position: absolute; left: 0; right: 0; bottom: -6px; display: flex; justify-content: space-around; font-size: 1.05rem; z-index: 0; }
+    .foc span { animation: flama .5s ease-in-out infinite alternate; transform-origin: 50% 100%; }
+    .foc span:nth-child(2n) { animation-delay: .25s; }
+    @keyframes flama { to { transform: scaleY(1.25) translateY(-2px); opacity: .8; } }
+
+    .castanya { position: relative; width: 40px; height: 40px; }
+    .castanya img { width: 100%; height: 100%; display: block; transition: filter .8s, opacity .8s; }
+    /* castanya cremada: la mateixa icona enfosquida fins a negre */
+    .castanya.cremada img { filter: brightness(.16) saturate(.3) drop-shadow(0 2px 4px rgba(0, 0, 0, .6)); }
+    .castanya.cremant img { animation: crema .7s; }
+    @keyframes crema { 0% { filter: drop-shadow(0 0 0 #ff8a1f); } 30% { filter: drop-shadow(0 0 10px #ff8a1f); transform: scale(1.15) rotate(-8deg); } 60% { transform: rotate(8deg); } }
+    /* fumet que surt de les castanyes cremades */
+    .fum { position: absolute; left: 50%; top: 0; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; background: rgba(210, 200, 220, .55); filter: blur(2px); opacity: 0; pointer-events: none; }
+    .castanya.cremada .fum { animation: fum 2.4s ease-out infinite; }
+    .castanya.cremada .fum:nth-of-type(2) { animation-delay: .8s; }
+    .castanya.cremada .fum:nth-of-type(3) { animation-delay: 1.6s; }
+    @keyframes fum { 0% { opacity: .7; transform: translate(0, 0) scale(.6); } 100% { opacity: 0; transform: translate(8px, -36px) scale(1.8); } }
+
+    /* ---------- Pista (definició) ---------- */
+    .pista { padding: .9rem 1.1rem; margin-bottom: 1rem; text-align: center; }
+    .pista small { display: inline-block; font-weight: 800; font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: #8a4b24; margin-bottom: .25rem; }
+    .pista p { font-size: 1.08rem; line-height: 1.45; font-weight: 600; }
+
+    /* ---------- Caselles de la paraula ---------- */
+    .caselles { --n: 8; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 18px; margin: .4rem 0 1.2rem; min-height: 3.4rem; }
+    .mot { display: flex; gap: 4px; }
+    .casella {
+        width: min(42px, calc((min(100vw, 860px) - 64px - (var(--n) - 1) * 4px) / var(--n)));
+        aspect-ratio: 4 / 5; display: grid; place-items: center;
+        border-radius: 10px; background: rgba(246, 232, 200, .1); border: 2px solid var(--vora); border-bottom: 3px solid var(--or);
+        font-weight: 800; font-size: clamp(1rem, 4.6vw, 1.55rem); color: var(--text); padding: 0;
+    }
+    .casella.plena { background: var(--paper); color: var(--tinta); border-color: #e2c193; }
+    .casella.plena.j-pop { animation: j-pop .35s; }
+    .casella.fixa { background: rgba(111, 220, 140, .25); color: var(--text); border-color: var(--verd); }
+    .casella.revelada { background: rgba(255, 122, 107, .18); color: var(--vermell); border-color: var(--vermell); }
+    .caselles.guanyat .casella { background: rgba(111, 220, 140, .3); color: var(--text); border-color: var(--verd); }
+    button.casella:not(:disabled):hover { border-color: var(--carbassa); }
+
+    /* ---------- Teclat en pantalla ---------- */
+    .teclat { display: grid; gap: 6px; max-width: 560px; margin: 0 auto; }
+    .fila { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; }
+    .fila.curta { grid-template-columns: repeat(7, 1fr); padding: 0 15%; }
+    .tecla {
+        height: 46px; min-width: 0; border-radius: 10px; font-weight: 800; font-size: 1.05rem;
+        background: var(--pedra-2); border: 1px solid var(--vora); box-shadow: 0 3px 0 rgba(0, 0, 0, .35);
+        transition: background .2s, transform .1s;
+    }
+    .tecla:hover:not(:disabled) { background: rgba(255, 138, 31, .25); }
+    .tecla:active:not(:disabled) { transform: translateY(2px); box-shadow: none; }
+    .tecla.si { background: rgba(111, 220, 140, .35); border-color: var(--verd); }
+    .tecla.no { background: rgba(0, 0, 0, .3); color: rgba(255, 255, 255, .3); border-color: transparent; box-shadow: none; text-decoration: line-through; }
+
+    /* ---------- Lletres desordenades (castanyes amb lletra) ---------- */
+    .llavors { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; max-width: 560px; margin: 0 auto; min-height: 64px; }
+    .llavor {
+        position: relative; width: 56px; height: 58px; padding-top: 6px;
+        border-radius: 50% 50% 46% 46% / 58% 58% 42% 42%;
+        background: radial-gradient(circle at 34% 28%, rgba(255, 255, 255, .35), transparent 30%),
+                    linear-gradient(180deg, #9b5a2e 0%, #7a3f1c 66%, #e2c193 67%, #c9a370 100%);
+        box-shadow: 0 4px 0 #4a230d, 0 8px 16px -6px rgba(0, 0, 0, .7);
+        color: #fff4d6; font-weight: 800; font-size: 1.35rem; text-shadow: 0 2px 0 rgba(0, 0, 0, .4);
+        transition: transform .15s, opacity .2s;
+    }
+    .llavor:hover:not(:disabled) { transform: translateY(-3px) rotate(-4deg); }
+    .llavor:active:not(:disabled) { transform: translateY(1px); }
+    .llavor.usada { opacity: 0; pointer-events: none; transform: scale(.6); }
+
+    /* ---------- Botons d'acció ---------- */
+    .accions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 1.2rem; }
+    .accions .j-boto { padding: .7rem 1.1rem; }
+    .amagat { display: none !important; }
+
+    @media (max-width: 520px) {
+        .tecla { height: 42px; font-size: .95rem; border-radius: 8px; }
+        .fila.curta { padding: 0 10%; }
+        .castanya { width: 34px; height: 34px; }
+        .llavor { width: 50px; height: 52px; font-size: 1.2rem; }
+    }
+</style>
+</head>
+<body>
+<main class="j-main">
+    <section class="j-panell">
+        <h1 class="j-h1">La Parada de la Castanyera</h1>
+        <p class="j-intro" id="intro">Endevineu les <b>paraules musicals</b> embolicades a les paperines abans que es cremin totes les castanyes.</p>
+
+        <div class="j-hud">
+            <span class="j-xip" id="xRonda">Ronda 1 · Penjat</span>
+            <span class="j-xip" id="xParaula">1/8</span>
+            <span class="j-xip" id="xEncerts">✅ 0</span>
+            <span class="j-xip" id="xRatxa">🔥 Ratxa 0</span>
+            <span class="j-xip" id="xPunts">⭐ 0</span>
+        </div>
+        <div class="j-progres"><i id="barra"></i></div>
+
+        <div class="parada">
+            <div class="parada-castanyera">
+                <span id="retrat"></span>
+                <div class="bombolla" id="frase" aria-live="polite">Benvinguts a la parada!</div>
+            </div>
+            <div class="torradora" aria-label="Castanyes que queden">
+                <div class="castanyes" id="castanyes"></div>
+                <div class="paella"></div>
+                <div class="foc" aria-hidden="true"><span>🔥</span><span>🔥</span><span>🔥</span><span>🔥</span></div>
+            </div>
+        </div>
+
+        <div class="pista j-paper">
+            <small id="tema">Pista</small>
+            <p id="definicio">…</p>
+        </div>
+
+        <div class="caselles" id="caselles" aria-label="Paraula"></div>
+
+        <div id="zona"></div>
+
+        <div class="accions">
+            <button class="j-boto lila" id="bPista">💡 Pista extra (−1 <img class="j-icona-img" src="img/icones/castanya.png" alt="castanya" width="22" height="22" draggable="false">)</button>
+            <button class="j-boto fantasma amagat" id="bDesfer">↩ Desfer</button>
+            <button class="j-boto verd amagat" id="bSeguent">Següent paperina →</button>
+        </div>
+    </section>
+</main>
+
+<script src="comu.js?v=2"></script>
+<script>
+(() => {
+    const { $ } = Joc;
+
+    // ---------- BANC DE PARAULES (definicions per a 2n/3r d'ESO) ----------
+    // Docent: podeu ampliar aquest banc afegint-hi línies { p: 'PARAULA', t: tema, d: 'definició' }.
+    // A cada partida se'n trien 8 a l'atzar (5 per al penjat i 3 per a les lletres desordenades).
+    // Les paraules amb espais (p. ex. CLAU DE SOL) només surten al penjat; les desordenades han de tenir 5–9 lletres.
+    const RITME = 'Figures i ritme', LLENG = 'Notes i llenguatge musical', INSTR = 'Instruments';
+    const BANC = [
+        { p: 'PENTAGRAMA', t: LLENG, d: 'Les cinc línies i els quatre espais on escrivim les notes.' },
+        { p: 'CLAU DE SOL', t: LLENG, d: 'Signe del principi del pentagrama que indica que la nota de la segona línia és Sol.' },
+        { p: 'ESCALA', t: LLENG, d: 'Successió ordenada de notes: Do, Re, Mi, Fa, Sol, La, Si…' },
+        { p: 'OCTAVA', t: LLENG, d: 'Distància entre una nota i la següent que té el mateix nom, més aguda o més greu.' },
+        { p: 'SOSTINGUT', t: LLENG, d: 'Alteració que fa sonar una nota mig to més aguda.' },
+        { p: 'BEMOLL', t: LLENG, d: 'Alteració que fa sonar una nota mig to més greu.' },
+        { p: 'MELODIA', t: LLENG, d: 'Successió de notes, una darrere l\'altra, que forma una frase musical que es pot cantar.' },
+        { p: 'PLICA', t: RITME, d: 'Pal vertical que porten moltes figures, com la blanca, la negra o la corxera.' },
+        { p: 'NEGRA', t: RITME, d: 'Figura que dura un temps en un compàs de 4/4.' },
+        { p: 'BLANCA', t: RITME, d: 'Figura de cap buit i amb plica que dura dos temps (com dues negres).' },
+        { p: 'RODONA', t: RITME, d: 'Figura sense plica que dura quatre temps: omple tot un compàs de 4/4.' },
+        { p: 'CORXERA', t: RITME, d: 'Figura que dura mig temps: en calen dues per fer una negra.' },
+        { p: 'SEMICORXERA', t: RITME, d: 'Figura que dura un quart de temps: en calen quatre per fer una negra.' },
+        { p: 'SILENCI', t: RITME, d: 'Signe que indica que, durant una estona, no ha de sonar cap nota.' },
+        { p: 'PUNTET', t: RITME, d: 'Signe que, posat a la dreta d\'una figura, li suma la meitat del seu valor.' },
+        { p: 'COMPÀS', t: RITME, d: 'Grup de temps que es repeteix; al pentagrama se separa amb línies divisòries.' },
+        { p: 'PULSACIÓ', t: RITME, d: 'Batec regular i constant de la música, com el del cor.' },
+        { p: 'METRÒNOM', t: RITME, d: 'Aparell que marca la pulsació a la velocitat que triem.' },
+        { p: 'XILÒFON', t: INSTR, d: 'Instrument de percussió afinada amb làmines de fusta que es toquen amb baquetes.' },
+        { p: 'TIMBAL', t: INSTR, d: 'Instrument de percussió en forma de calder, cobert amb una pell, que es toca amb baquetes.' },
+        { p: 'VIOLÍ', t: INSTR, d: 'El més petit i agut de la corda fregada: es toca amb arc i recolzat a l\'espatlla.' },
+        { p: 'VIOLONCEL', t: INSTR, d: 'Instrument gran de corda fregada que es toca assegut, amb la punta recolzada a terra.' },
+        { p: 'TROMPETA', t: INSTR, d: 'Instrument agut de vent metall que canvia de nota amb tres pistons.' },
+        { p: 'FLAUTA', t: INSTR, d: 'Instrument de vent fusta que sona quan hi bufem; a classe en toquem la de bec.' },
+        { p: 'CLARINET', t: INSTR, d: 'Instrument de vent fusta, de tub negre, que sona fent vibrar una sola canya.' },
+        { p: 'TROMBÓ', t: INSTR, d: 'Instrument de vent metall que canvia de nota allargant i escurçant una vara.' },
+        { p: 'ARPA', t: INSTR, d: 'Gran instrument de corda pinçada, de forma triangular, que es toca amb els dits.' },
+        { p: 'PERCUSSIÓ', t: INSTR, d: 'Família d\'instruments que sonen quan els colpegem, els sacsegem o els freguem.' },
+        { p: 'GUITARRA', t: INSTR, d: 'Instrument de corda pinçada amb sis cordes i un forat rodó a la caixa.' },
+        { p: 'TUBA', t: INSTR, d: 'L\'instrument més greu de la família del vent metall.' },
+        { p: 'FAGOT', t: INSTR, d: 'Instrument greu de vent fusta, de doble canya i amb un tub llarg doblegat.' },
+        { p: 'PIANO', t: INSTR, d: 'Instrument de teclat en què uns martellets colpegen les cordes.' },
+    ];
+
+    // Cal encertar les 8 paperines. Si es cremen les 6 castanyes d'una paperina → fracàs i es torna a començar.
+    const N_R1 = 5, N_R2 = 3, TOTAL = N_R1 + N_R2, MAX_C = 6;
+
+    // Lletra base: treu accents i converteix Ç en C (À→A, É→E, Ç→C...)
+    const base = ch => ch.normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase();
+
+    // ---------- Estat ----------
+    const st = {};
+    const el = {
+        caselles: $('#caselles'), zona: $('#zona'), castanyes: $('#castanyes'), frase: $('#frase'),
+        definicio: $('#definicio'), tema: $('#tema'), bPista: $('#bPista'), bDesfer: $('#bDesfer'), bSeguent: $('#bSeguent'),
+    };
+    $('#retrat').innerHTML = Joc.retrat('castanyera', 64);
+
+    // ---------- Frases de la Castanyera (bombolla del panell) ----------
+    const FRASES = {
+        be: ['Aquesta hi és!', 'Ben vist!', 'Així m\'agrada!', 'Com qui pela una castanya!', 'Quina vista, criatures!'],
+        malament: ['Uix, aquesta no hi és…', 'Ai, ai, que es crema!', 'Fumet, fumet…', 'Aquesta lletra no toca!', 'Compte, que la torradora crema!'],
+        resolt: ['Paperina desembolicada!', 'Molt bé! Aquesta ja és vostra.', 'Bravo! Quina traça!'],
+        perfecte: ['Ni una castanya cremada! Sou uns cracs.', 'Perfecte, i amb totes les castanyes senceres!'],
+    };
+    const frase = html => { el.frase.innerHTML = html; Joc.reinicia(el.frase, 'j-pop'); };
+
+    // ---------- HUD ----------
+    function hud() {
+        $('#xRonda').textContent = st.ronda === 1 ? 'Ronda 1 · Penjat' : 'Ronda 2 · Desordenades';
+        $('#xParaula').innerHTML = `${Joc.icona('paperina', 22)} ${Math.min(st.idx + 1, TOTAL)}/${TOTAL}`;
+        $('#xEncerts').textContent = `✅ ${st.encertades}`;
+        $('#xRatxa').textContent = `🔥 Ratxa ${st.ratxa}`;
+        $('#xPunts').textContent = `⭐ ${st.punts}`;
+        $('#barra').style.width = `${(st.idx / TOTAL) * 100}%`;
+        el.bPista.disabled = st.estat !== 'jugant' || st.castanyes <= 1;
+    }
+
+    // ---------- Torradora ----------
+    function dibuixaTorradora() {
+        el.castanyes.innerHTML = Array.from({ length: MAX_C }, () =>
+            `<div class="castanya">${Joc.icona('castanya', 40)}<span class="fum"></span><span class="fum"></span><span class="fum"></span></div>`).join('');
+        el.castanyes.parentElement.setAttribute('aria-label', `Queden ${MAX_C} castanyes`);
+    }
+    // Crema una castanya. Retorna true si encara en queden.
+    function crema() {
+        st.castanyes--;
+        const c = el.castanyes.children[MAX_C - st.castanyes - 1];
+        if (c) { c.classList.add('cremada'); Joc.reinicia(c, 'cremant'); }
+        el.castanyes.parentElement.setAttribute('aria-label', `Queden ${st.castanyes} castanyes`);
+        Joc.so.malament();
+        hud();
+        if (st.castanyes === 1) frase('Compte, que <b>només queda una castanya</b>!');
+        if (st.castanyes <= 0) { fallada(); return false; }
+        return true;
+    }
+
+    // ---------- Partida ----------
+    function comenca() {
+        Object.assign(st, { ronda: 1, idx: 0, encertades: 0, punts: 0, ratxa: 0, castanyes: MAX_C, estat: 'carregant' });
+        const r1 = Joc.barreja(BANC).slice(0, N_R1);
+        const aptes = BANC.filter(x => !r1.includes(x) && !x.p.includes(' ') && x.p.length >= 5 && x.p.length <= 9);
+        const r2 = Joc.barreja(aptes).slice(0, N_R2);
+        st.llista = [...r1.map(x => ({ ...x, ronda: 1 })), ...r2.map(x => ({ ...x, ronda: 2 }))];
+        carrega(0);
+    }
+
+    async function carrega(i) {
+        st.idx = i;
+        st.paraula = st.llista[i];
+        st.estat = 'carregant';
+        if (st.paraula.ronda === 2 && st.ronda === 1) {
+            st.ronda = 2;
+            hud();
+            await Joc.dialeg([
+                { qui: 'castanyera', text: 'Mireu quina ventada! Les últimes <b>3 paperines</b> s\'han estripat i les lletres han rodolat per la parada com castanyes.' },
+                { qui: 'castanyera', text: 'Toqueu les castanyes <b>en l\'ordre correcte</b> per refer cada paraula. Si us equivoqueu, el botó <b>Desfer</b> torna enrere l\'última lletra (o toqueu una casella per treure-la).' },
+                { qui: 'marrameu', text: 'Quan ompliu totes les caselles, la Castanyera la comprova. Si no és bona, <b>es crema una castanya</b>, però les lletres ben posades s\'hi queden. I recordeu: si es cremen totes, el bruixot ens atrapa! Miau, a pensar!' },
+            ], { boto: 'A ordenar!' });
+        }
+        st.castanyes = MAX_C;
+        dibuixaTorradora();
+        el.tema.textContent = `Pista · ${st.paraula.t}`;
+        el.definicio.textContent = st.paraula.d;
+        el.caselles.classList.remove('guanyat');
+        el.bSeguent.classList.add('amagat');
+        el.bDesfer.classList.toggle('amagat', st.ronda === 1);
+        if (st.ronda === 1) muntaPenjat(); else muntaDesordenades();
+        frase(st.ronda === 1
+            ? `Paperina ${i + 1}: llegiu la pista i proveu lletres!`
+            : `Paperina ${i + 1}: ordeneu les castanyes!`);
+        st.estat = 'jugant';
+        // Les castanyes s'han pintat mentre l'estat era 'carregant' (desactivades): cal tornar-les a pintar
+        if (st.ronda === 2) pintaDesordenades();
+        hud();
+    }
+
+    // Caselles: agrupa per mots perquè "CLAU DE SOL" es parteixi bé
+    function dibuixaCaselles(boto = false) {
+        const mots = st.paraula.p.split(' ');
+        el.caselles.style.setProperty('--n', Math.max(6, ...mots.map(m => m.length)));
+        let k = 0;
+        el.caselles.innerHTML = mots.map(m => `<div class="mot">${[...m].map(() => {
+            const html = boto ? `<button class="casella" data-k="${k}" aria-label="Casella ${k + 1}"></button>` : `<span class="casella" data-k="${k}"></span>`;
+            k++; return html;
+        }).join('')}</div>`).join('');
+    }
+    const lletres = () => [...st.paraula.p.replace(/ /g, '')];
+    const casella = k => el.caselles.querySelector(`[data-k="${k}"]`);
+
+    // ================= RONDA 1: PENJAT =================
+    const FILES = ['QWERTYUIOP', 'ASDFGHJKLÇ', 'ZXCVBNM'];
+    function muntaPenjat() {
+        st.provades = new Set();
+        st.necessaries = new Set(lletres().map(base));
+        dibuixaCaselles();
+        el.zona.innerHTML = `<div class="teclat" role="group" aria-label="Teclat">${FILES.map((f, n) =>
+            `<div class="fila ${n === 2 ? 'curta' : ''}">${[...f].map(l =>
+                `<button class="tecla" data-b="${base(l)}" data-l="${l}">${l}</button>`).join('')}</div>`).join('')}</div>`;
+        el.zona.querySelectorAll('.tecla').forEach(t => t.addEventListener('click', () => endevina(t.dataset.b)));
+    }
+    function marcaTecla(b, si) {
+        el.zona.querySelectorAll(`.tecla[data-b="${b}"]`).forEach(t => { t.classList.add(si ? 'si' : 'no'); t.disabled = true; });
+    }
+    // Destapa totes les caselles d'una lletra base (amb les seves variants À, È, Ç...)
+    function destapa(b) {
+        lletres().forEach((ch, k) => {
+            if (base(ch) === b) { const c = casella(k); c.textContent = ch; c.classList.add('plena'); Joc.reinicia(c, 'j-pop'); }
+        });
+    }
+    const completa = () => [...st.necessaries].every(b => st.provades.has(b));
+
+    function endevina(b) {
+        if (st.estat !== 'jugant' || st.ronda !== 1) return;
+        if (st.provades.has(b)) { Joc.toast(`La ${b} ja l'heu provada!`); return; }
+        st.provades.add(b);
+        const hiEs = st.necessaries.has(b);
+        marcaTecla(b, hiEs);
+        if (hiEs) {
+            destapa(b);
+            Joc.so.nota(Joc.tria([72, 74, 76, 79]), { dur: .35, vol: .14 });
+            if (completa()) return resolt();
+            if (Math.random() < .45) frase(Joc.tria(FRASES.be));
+        } else {
+            if (crema() && st.castanyes > 1) frase(Joc.tria(FRASES.malament));
+        }
+    }
+
+    // ================= RONDA 2: LLETRES DESORDENADES =================
+    function muntaDesordenades() {
+        const ll = lletres();
+        let ordre = Joc.barreja(ll), intents = 0;
+        while (ordre.join('') === ll.join('') && intents++ < 20) ordre = Joc.barreja(ll);
+        st.fitxes = ordre.map(ch => ({ ch, slot: null }));
+        st.slots = Array(ll.length).fill(null);
+        st.fixes = Array(ll.length).fill(false);
+        st.historial = [];
+        dibuixaCaselles(true);
+        el.caselles.querySelectorAll('.casella').forEach(c => c.addEventListener('click', () => { if (st.estat !== 'jugant') return; treu(+c.dataset.k); pintaDesordenades(); }));
+        el.zona.innerHTML = `<div class="llavors" role="group" aria-label="Castanyes amb lletres">${st.fitxes.map((f, j) =>
+            `<button class="llavor" data-j="${j}">${f.ch}</button>`).join('')}</div>`;
+        el.zona.querySelectorAll('.llavor').forEach(b => b.addEventListener('click', () => posa(+b.dataset.j)));
+        pintaDesordenades();
+    }
+    function pintaDesordenades() {
+        st.slots.forEach((j, k) => {
+            const c = casella(k);
+            c.textContent = j === null ? '' : st.fitxes[j].ch;
+            c.classList.toggle('plena', j !== null && !st.fixes[k]);
+            c.classList.toggle('fixa', st.fixes[k]);
+            c.disabled = st.fixes[k] || j === null || st.estat !== 'jugant';
+        });
+        el.zona.querySelectorAll('.llavor').forEach(b => {
+            const usada = st.fitxes[+b.dataset.j].slot !== null;
+            b.classList.toggle('usada', usada); b.disabled = usada || st.estat !== 'jugant';
+        });
+        el.bDesfer.disabled = st.estat !== 'jugant' || !st.historial.some(k => !st.fixes[k] && st.slots[k] !== null);
+    }
+    function posa(j) {
+        if (st.estat !== 'jugant' || st.ronda !== 2 || st.fitxes[j].slot !== null) return;
+        const k = st.slots.indexOf(null);
+        if (k < 0) return;
+        st.slots[k] = j; st.fitxes[j].slot = k; st.historial.push(k);
+        Joc.so.nota(67 + (k % 5) * 2, { dur: .25, vol: .12 });
+        pintaDesordenades();
+        Joc.reinicia(casella(k), 'j-pop');
+        if (!st.slots.includes(null)) comprova();
+    }
+    function treu(k) {
+        if (st.fixes[k] || st.slots[k] === null) return;
+        st.fitxes[st.slots[k]].slot = null; st.slots[k] = null;
+        st.historial = st.historial.filter(x => x !== k);
+    }
+    function desfer() {
+        if (st.estat !== 'jugant' || st.ronda !== 2) return;
+        while (st.historial.length) {
+            const k = st.historial.pop();
+            if (!st.fixes[k] && st.slots[k] !== null) { st.historial.push(k); treu(k); Joc.so.clic(); break; }
+        }
+        pintaDesordenades();
+    }
+    function comprova() {
+        const ll = lletres();
+        const bones = st.slots.map((j, k) => st.fitxes[j].ch === ll[k]);
+        if (bones.every(Boolean)) { st.fixes = st.fixes.map(() => true); pintaDesordenades(); return resolt(); }
+        // Les ben posades queden fixades; les altres tornen a la parada
+        bones.forEach((ok, k) => { if (ok) st.fixes[k] = true; else treu(k); });
+        Joc.reinicia(el.caselles, 'j-tremola');
+        if (crema()) {
+            Joc.toast(`${bones.filter(Boolean).length} de ${ll.length} lletres al seu lloc`, 'malament');
+            if (st.castanyes > 1) frase(Joc.tria(FRASES.malament) + ' Les lletres verdes ja són bones.');
+            pintaDesordenades();
+        }
+    }
+
+    // ---------- Pista extra (costa una castanya) ----------
+    function pista() {
+        if (st.estat !== 'jugant') return;
+        if (st.castanyes <= 1) { Joc.toast('Només queda una castanya: no la podem cremar!'); return; }
+        if (st.ronda === 1) {
+            const queden = [...st.necessaries].filter(b => !st.provades.has(b));
+            if (!queden.length) return;
+            const b = Joc.tria(queden);
+            st.provades.add(b); marcaTecla(b, true); destapa(b);
+            crema();
+            frase('Us he destapat una lletra… però s\'ha cremat una castanya!');
+            if (completa()) resolt();
+        } else {
+            const ll = lletres();
+            const k = st.fixes.indexOf(false);
+            if (k < 0) return;
+            treu(k);
+            let j = st.fitxes.findIndex(f => f.ch === ll[k] && f.slot === null);
+            if (j < 0) { // la lletra és en una altra casella mal posada: la recuperem
+                j = st.fitxes.findIndex(f => f.ch === ll[k] && f.slot !== null && !st.fixes[f.slot]);
+                treu(st.fitxes[j].slot);
+            }
+            st.slots[k] = j; st.fitxes[j].slot = k; st.fixes[k] = true;
+            crema();
+            frase('Aquesta lletra ja és al seu lloc… però s\'ha cremat una castanya!');
+            pintaDesordenades();
+            Joc.reinicia(casella(k), 'j-pop');
+            if (!st.slots.includes(null)) comprova();
+        }
+    }
+
+    // ---------- Final de cada paraula ----------
+    function resolt() {
+        st.estat = 'resolt';
+        st.encertades++; st.ratxa++;
+        const guany = 50 + st.castanyes * 25 + (st.ratxa - 1) * 20;
+        st.punts += guany;
+        el.caselles.classList.add('guanyat');
+        Joc.so.be();
+        Joc.toast(`+${guany} punts`, 'be');
+        frase(st.castanyes === MAX_C ? Joc.tria(FRASES.perfecte) : Joc.tria(FRASES.resolt));
+        if (st.ronda === 2) pintaDesordenades();
+        if (st.ratxa === 3) Joc.diu('marrameu', 'Tres paperines seguides! Esteu fets uns <b>miau-stres</b> del vocabulari!');
+        else if (st.ratxa === 5) Joc.diu('marrameu', 'Cinc seguides! Miau, quina memòria musical!');
+        else if (st.idx === 3) Joc.diu('marrameu', 'Ja som a la meitat de la parada! Ensumo el segell…');
+        fiParaula();
+    }
+    // Totes les castanyes cremades: es mostra la solució i el bruixot us atrapa (el repte torna a començar)
+    async function fallada() {
+        st.estat = 'fracas';
+        st.ratxa = 0;
+        // Mostra la solució
+        lletres().forEach((ch, k) => {
+            const c = casella(k);
+            const bona = st.ronda === 1 ? c.classList.contains('plena') : st.fixes[k];
+            if (st.ronda === 2) { c.classList.remove('plena'); c.disabled = true; }
+            if (!bona) c.classList.add('revelada');
+            c.textContent = ch;
+        });
+        if (st.ronda === 2) el.zona.querySelectorAll('.llavor').forEach(b => { b.disabled = true; b.classList.add('usada'); });
+        frase(`Ai, s'han cremat totes les castanyes! La paraula era <b>${st.paraula.p}</b>.`);
+        el.bDesfer.disabled = true; el.bPista.disabled = true;
+        el.zona.querySelectorAll('.tecla').forEach(t => t.disabled = true);
+        await Joc.espera(2200);
+        Joc.fracas({
+            motiu: `S'han cremat totes les castanyes de la paperina <b>${st.paraula.p}</b>. La Castanyera tornarà a omplir la torradora amb paraules noves.`,
+            reinicia: comenca,
+        });
+    }
+    function fiParaula() {
+        el.bDesfer.disabled = true;
+        el.zona.querySelectorAll('.tecla').forEach(t => t.disabled = true);
+        el.bSeguent.textContent = st.idx + 1 >= TOTAL ? 'Continuar →' : 'Següent paperina →';
+        el.bSeguent.classList.remove('amagat');
+        hud();
+        setTimeout(() => el.bSeguent.focus({ preventScroll: true }), 50);
+    }
+
+    async function seguent() {
+        if (st.estat !== 'resolt') return;
+        st.estat = 'carregant';
+        if (st.idx + 1 >= TOTAL) return final();
+        carrega(st.idx + 1);
+    }
+
+    function final() {
+        st.idx = TOTAL; hud();
+        Joc.guanya({
+            repte: 3,
+            missatge: `Heu desembolicat <b>les ${TOTAL} paperines</b> i heu fet <b>${st.punts}</b> punts.`,
+            resum: 'Vocabulari treballat: figures, llenguatge musical i instruments.',
+            epileg: [
+                { qui: 'castanyera', text: 'Quina feinada més ben feta! Teniu, una <b>paperina de castanyes calentetes</b> per a cadascú… i al fons, mireu què hi ha: un altre segell!' },
+                { qui: 'castanyera', text: 'Ara, escolteu una cosa estranya: des de l\'esternut del bruixot, a <b>l\'Hort de les Carbasses</b> les carbasses <b>canten soles</b>! Potser hi ha un tros de la Melodia de la Nit.' },
+                { qui: 'marrameu', text: 'Carbasses cantaires? Això sí que és un miau-sical! Cap a <b>l\'Hort de les Carbasses</b>, que és el Repte IV!' },
+            ],
+        });
+    }
+
+
+    // ---------- Controls ----------
+    el.bPista.addEventListener('click', pista);
+    el.bDesfer.addEventListener('click', desfer);
+    el.bSeguent.addEventListener('click', seguent);
+
+    // Teclat físic: lletres (A–Z, Ç, també amb accent), Retrocés per desfer, Retorn per continuar
+    document.addEventListener('keydown', e => {
+        if ($('.j-dialeg') || $('.j-premi.obert') || e.ctrlKey || e.metaKey || e.altKey) return;
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            if (st.estat === 'resolt') seguent();
+            return;
+        }
+        if (st.estat !== 'jugant') return;
+        if (e.key === 'Backspace' && st.ronda === 2) { e.preventDefault(); desfer(); return; }
+        if (e.key.length !== 1) return;
+        const b = base(e.key);
+        if (!/^[A-Z]$/.test(b)) return;
+        if (st.ronda === 1) endevina(b);
+        else {
+            const j = st.fitxes.findIndex(f => f.slot === null && base(f.ch) === b);
+            if (j >= 0) posa(j); else Joc.toast(`No queda cap castanya amb la ${b}`);
+        }
+    });
+
+    // ---------- Inici ----------
+    Joc.capcalera({ repte: 3, titol: 'La Parada de la Castanyera' });
+    Object.assign(st, { ronda: 1, idx: 0, encertades: 0, punts: 0, ratxa: 0, castanyes: MAX_C, estat: 'carregant' });
+    dibuixaTorradora(); hud();
+    Joc.dialeg([
+        { qui: 'marrameu', text: 'Miau! Seguint l\'olor de castanyes torrades hem arribat a la <b>Parada de la Castanyera</b>. Aquí hi ha un segell amagat, n\'estic miau-segur!' },
+        { qui: 'castanyera', text: 'Ai, criatures, quin desgavell! L\'esternut del bruixot m\'ha embolicat <b>paraules musicals</b> dins les paperines i ara no sé quina és quina.' },
+        { qui: 'castanyera', text: 'Llegiu la pista i endevineu la paraula lletra a lletra. Però compte: cada lletra que no hi és <b>crema una castanya</b> de la torradora! La <b>pista extra</b> destapa una lletra… a canvi d\'una castanya.' },
+        { qui: 'marrameu', text: 'Són <b>8 paperines</b> i les heu d\'encertar <b>totes</b>: si es cremen les 6 castanyes d\'una paperina, el bruixot us atrapa i torneu a començar! No patiu pels accents: premeu la lletra base (A, E, O, C…) i l\'accent o la ç hi surten sols. Som-hi!' },
+    ], { boto: 'Obrir la primera paperina' }).then(comenca);
+})();
+</script>
+</body>
+</html>

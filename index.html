@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#140b26">
+    <title>Escape Room Musical de la Nit</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Griffy&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="comu.css?v=2">
+    <style>
+        :root {
+            --nit: #140b26;
+            --nit-2: #22113d;
+            --violeta: #7b4fd6;
+            --carbassa: #ff8a1f;
+            --carbassa-fosc: #d9600b;
+            --castanya: #8a4b24;
+            --or: #ffcf5c;
+            --lluna: #fff4d6;
+            --verd: #6fdc8c;
+            --text: #fbf3ff;
+            --suau: #c7b8e0;
+            --pedra: rgba(255, 255, 255, 0.06);
+            --vora: rgba(255, 207, 92, 0.18);
+            --f-titol: 'Griffy', 'Nunito', cursive;
+            --f-text: 'Nunito', system-ui, sans-serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        html { color-scheme: dark; }
+
+        body {
+            font-family: var(--f-text);
+            color: var(--text);
+            background: radial-gradient(120% 80% at 50% 0%, #3a1d63 0%, var(--nit-2) 35%, var(--nit) 75%) fixed;
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; }
+
+        /* ================= ESCENA DE FONS ================= */
+        .escena { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+
+        .estrelles {
+            position: absolute; inset: 0;
+            background-image:
+                radial-gradient(1.5px 1.5px at 12% 18%, #fff 50%, transparent 51%),
+                radial-gradient(1px 1px at 28% 8%, #fff 50%, transparent 51%),
+                radial-gradient(1.5px 1.5px at 44% 26%, #fff 50%, transparent 51%),
+                radial-gradient(1px 1px at 62% 12%, #fff 50%, transparent 51%),
+                radial-gradient(2px 2px at 78% 30%, #ffe9b0 50%, transparent 51%),
+                radial-gradient(1px 1px at 90% 6%, #fff 50%, transparent 51%),
+                radial-gradient(1px 1px at 6% 40%, #fff 50%, transparent 51%),
+                radial-gradient(1.5px 1.5px at 54% 44%, #fff 50%, transparent 51%),
+                radial-gradient(1px 1px at 36% 52%, #fff 50%, transparent 51%),
+                radial-gradient(1px 1px at 96% 48%, #fff 50%, transparent 51%);
+            animation: titil 4s ease-in-out infinite alternate;
+        }
+        @keyframes titil { from { opacity: .55; } to { opacity: 1; } }
+
+        .lluna {
+            position: absolute; top: 6vh; right: 8vw;
+            width: clamp(90px, 14vw, 170px); aspect-ratio: 1; border-radius: 50%;
+            background:
+                radial-gradient(circle at 30% 35%, rgba(230, 200, 150, .55) 0 9%, transparent 10%),
+                radial-gradient(circle at 62% 60%, rgba(230, 200, 150, .45) 0 12%, transparent 13%),
+                radial-gradient(circle at 70% 28%, rgba(230, 200, 150, .4) 0 6%, transparent 7%),
+                radial-gradient(circle at 40% 40%, #fffaf0, var(--lluna) 60%, #f3d9a0);
+            box-shadow: 0 0 60px 20px rgba(255, 230, 160, .25), 0 0 160px 60px rgba(255, 180, 90, .12);
+        }
+
+        .rat-penat {
+            position: absolute; width: 46px; color: #0b0616;
+            animation: vol linear infinite;
+        }
+        .rat-penat svg { width: 100%; animation: aleteig .35s ease-in-out infinite alternate; transform-origin: center; }
+        @keyframes aleteig { from { transform: scaleY(1); } to { transform: scaleY(.45); } }
+        @keyframes vol {
+            0% { transform: translate(-10vw, 0) rotate(-4deg); }
+            25% { transform: translate(25vw, -4vh) rotate(3deg); }
+            50% { transform: translate(55vw, 3vh) rotate(-3deg); }
+            75% { transform: translate(85vw, -3vh) rotate(4deg); }
+            100% { transform: translate(115vw, 1vh) rotate(0); }
+        }
+
+        .fulla {
+            position: absolute; top: -40px; font-size: 22px;
+            animation: caiguda linear infinite;
+            opacity: .85;
+        }
+        @keyframes caiguda {
+            0% { transform: translate(0, -40px) rotate(0); }
+            50% { transform: translate(40px, 50vh) rotate(180deg); }
+            100% { transform: translate(-20px, 105vh) rotate(360deg); }
+        }
+
+        .boira {
+            position: absolute; bottom: -8vh; left: -20vw; width: 140vw; height: 32vh;
+            background:
+                radial-gradient(40% 60% at 20% 70%, rgba(200, 180, 255, .14), transparent 70%),
+                radial-gradient(35% 55% at 60% 80%, rgba(255, 200, 150, .10), transparent 70%),
+                radial-gradient(30% 50% at 90% 60%, rgba(200, 180, 255, .12), transparent 70%);
+            filter: blur(10px);
+            animation: deriva 28s ease-in-out infinite alternate;
+        }
+        .boira.b2 { bottom: -12vh; animation-duration: 40s; animation-direction: alternate-reverse; opacity: .8; }
+        @keyframes deriva { from { transform: translateX(-6vw); } to { transform: translateX(6vw); } }
+
+        .turons {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 18vh; min-height: 110px;
+        }
+
+        /* ================= CONTINGUT ================= */
+        .app { position: relative; z-index: 1; max-width: 1180px; margin: 0 auto; padding: clamp(1.2rem, 4vw, 3rem) 16px 8rem; }
+
+        .barra {
+            position: sticky; top: 10px; z-index: 20;
+            display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+            padding: 10px 14px; margin-bottom: 2rem;
+            background: rgba(20, 11, 38, .72);
+            border: 1px solid var(--vora); border-radius: 18px;
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+        }
+        .espelmes { display: flex; gap: 6px; align-items: flex-end; }
+        .espelma { position: relative; width: 14px; height: 26px; border-radius: 3px 3px 2px 2px; background: linear-gradient(#efe4cf, #c9b89a); opacity: .45; transition: opacity .4s; }
+        .espelma::before {
+            content: ""; position: absolute; left: 50%; top: -13px; width: 8px; height: 12px; margin-left: -4px;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            background: radial-gradient(circle at 50% 70%, #fff6c2, var(--or) 45%, var(--carbassa) 80%);
+            box-shadow: 0 0 10px 3px rgba(255, 180, 60, .6);
+            transform: scale(0); transition: transform .4s cubic-bezier(.3, 1.6, .5, 1);
+        }
+        .espelma.encesa { opacity: 1; }
+        .espelma.encesa::before { transform: scale(1); animation: flama 1.4s ease-in-out infinite alternate; }
+        @keyframes flama { 0% { transform: scale(1) rotate(-3deg); } 50% { transform: scale(1.1, .92) rotate(2deg); } 100% { transform: scale(.95, 1.08) rotate(-1deg); } }
+        .comptador { font-weight: 800; font-size: .9rem; color: var(--suau); margin-left: 8px; }
+
+        .rellotge { display: flex; align-items: center; gap: 10px; }
+        .temps { font-family: var(--f-titol); font-size: 1.6rem; letter-spacing: .04em; color: var(--or); min-width: 4.5ch; text-align: right; font-variant-numeric: tabular-nums; }
+        .temps.poc { color: #ff7a59; animation: batec 1s ease-in-out infinite; }
+        @keyframes batec { 50% { transform: scale(1.08); } }
+        .boto-icona { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; font-size: 1.15rem; background: var(--pedra); border: 1px solid var(--vora); transition: background .2s; }
+        .boto-icona:hover { background: rgba(255, 255, 255, .12); }
+
+        header.capcalera { text-align: center; margin-bottom: 2.6rem; }
+        .etiqueta { display: inline-block; font-weight: 800; font-size: .75rem; letter-spacing: .2em; text-transform: uppercase; color: var(--or); padding: .4rem .9rem; border-radius: 999px; border: 1px solid var(--vora); background: rgba(255, 207, 92, .06); }
+        h1 {
+            font-family: var(--f-titol); font-weight: 400;
+            font-size: clamp(2.4rem, 7.5vw, 5rem); line-height: 1.02; margin: 1rem 0 .8rem;
+            background: linear-gradient(180deg, #ffe7a3 10%, var(--carbassa) 60%, var(--carbassa-fosc));
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+            filter: drop-shadow(0 4px 0 #2a0f4a) drop-shadow(0 0 30px rgba(255, 138, 31, .35));
+        }
+        .historia { max-width: 62ch; margin: 0 auto; color: var(--suau); font-size: clamp(1rem, 2vw, 1.12rem); line-height: 1.6; }
+        .historia b { color: var(--text); }
+
+        /* ---------- Mapa del poble amb marcadors ---------- */
+        .ajuda-mapa { text-align: center; color: var(--suau); font-weight: 700; margin: 0 0 .8rem; }
+        .pins { position: absolute; inset: 0; z-index: 2; }
+        .pin {
+            position: absolute; transform: translate(-50%, -50%);
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+            text-decoration: none; color: var(--text);
+        }
+        .pin .marca {
+            width: clamp(32px, 5vw, 56px); aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center;
+            font-family: var(--f-titol); font-size: clamp(.8rem, 1.9vw, 1.35rem); color: #5a1d00;
+            background: radial-gradient(circle at 35% 30%, #ffd98a, var(--carbassa) 55%, var(--carbassa-fosc));
+            box-shadow: inset 0 -4px 0 rgba(0, 0, 0, .2), 0 0 0 3px rgba(20, 11, 38, .7), 0 6px 18px rgba(0, 0, 0, .7);
+            transition: transform .2s cubic-bezier(.2, 1.6, .4, 1);
+        }
+        .pin:hover .marca, .pin:focus-visible .marca { transform: scale(1.18); }
+        .pin:focus-visible { outline: none; }
+        .pin:focus-visible .marca { outline: 3px solid var(--or); outline-offset: 3px; }
+        .pin .nom {
+            font-size: clamp(.62rem, 1.3vw, .8rem); font-weight: 800; white-space: nowrap;
+            padding: 3px 8px; border-radius: 99px; background: rgba(20, 11, 38, .85); border: 1px solid var(--vora);
+        }
+        .pin.superat .marca { color: #12301c; background: radial-gradient(circle at 35% 30%, #c9f7d3, var(--verd) 60%, #2f9a52); }
+        .pin.posat .marca { color: #4a3000; background: radial-gradient(circle at 35% 30%, #fff3c4, var(--or) 60%, #c4902a); }
+        .pin.proxima .marca { animation: crida 1.6s ease-in-out infinite; }
+        @keyframes crida {
+            0%, 100% { box-shadow: inset 0 -4px 0 rgba(0, 0, 0, .2), 0 0 0 3px rgba(20, 11, 38, .7), 0 0 0 0 rgba(255, 207, 92, .8); }
+            50% { box-shadow: inset 0 -4px 0 rgba(0, 0, 0, .2), 0 0 0 3px rgba(20, 11, 38, .7), 0 0 0 14px rgba(255, 207, 92, 0); }
+        }
+        .pin.proxima .nom { background: var(--or); color: #2a1200; border-color: var(--or); }
+        @media (max-width: 600px) { .pin .nom { display: none; } .pin.proxima .nom { display: block; } }
+
+        /* Fitxa d'un lloc */
+        .fitxa { padding: 0 0 1.4rem; overflow: hidden; }
+        .fitxa img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin-bottom: 1rem; }
+        .fitxa .numeral { display: block; }
+        .fitxa h2, .fitxa p, .fitxa-botons { padding: 0 1.4rem; }
+        .fitxa-estat { font-weight: 800; color: var(--or) !important; }
+        .fitxa-botons { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; align-items: center; }
+        .fitxa-botons .boto-gran { margin-top: 0; text-decoration: none; }
+
+        /* Il·lustració del poble i repartiment */
+        .poble { position: relative; max-width: 1180px; margin: 0 auto; border-radius: 26px; overflow: hidden; border: 1px solid var(--vora); box-shadow: 0 30px 70px -30px rgba(0, 0, 0, .9), 0 0 60px -20px rgba(255, 138, 31, .35); }
+        .poble img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+        .poble::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 55%, rgba(20, 11, 38, .85)); pointer-events: none; }
+        .repartiment { display: flex; justify-content: center; gap: clamp(12px, 4vw, 32px); margin: 1.2rem 0 3rem; }
+        .repartiment button { display: flex; flex-direction: column; align-items: center; gap: 4px; font-weight: 800; font-size: .8rem; color: var(--text); text-shadow: 0 2px 6px #000; }
+        .repartiment button:hover .j-retrat { transform: translateY(-4px) scale(1.05); }
+        .repartiment .j-retrat { transition: transform .2s; }
+        .repartiment .j-retrat span { font-size: 2rem; }
+        .seguent { display: inline-block; margin-top: .3rem; font-size: .72rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #2a1200; background: var(--or); padding: .2rem .55rem; border-radius: 99px; }
+        .porta.proxima { border-color: rgba(255, 207, 92, .7); box-shadow: 0 0 0 2px rgba(255, 207, 92, .25), 0 24px 50px -16px rgba(255, 207, 92, .45); }
+        .lloc { font-size: .78rem; font-weight: 800; letter-spacing: .06em; color: var(--suau); text-transform: uppercase; }
+
+        /* Targetes-porta */
+        .reptes { display: grid; grid-template-columns: repeat(auto-fill, minmax(245px, 1fr)); gap: 1.3rem; margin-bottom: 3.2rem; }
+
+        .porta {
+            position: relative; display: flex; flex-direction: column; align-items: center; text-align: center;
+            padding: 1.6rem 1.2rem 1.2rem; gap: .7rem;
+            border-radius: 130px 130px 22px 22px;
+            background:
+                linear-gradient(180deg, rgba(123, 79, 214, .22), rgba(20, 11, 38, .4) 60%),
+                var(--pedra);
+            border: 1px solid var(--vora);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), 0 18px 40px -18px rgba(0, 0, 0, .8);
+            transition: transform .3s cubic-bezier(.2, .8, .2, 1), box-shadow .3s, border-color .3s;
+            opacity: 0; transform: translateY(20px);
+            animation: apareix .6s forwards;
+        }
+        @keyframes apareix { to { opacity: 1; transform: none; } }
+        .porta:hover { transform: translateY(-6px); border-color: rgba(255, 138, 31, .55); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), 0 24px 50px -16px rgba(255, 138, 31, .45); }
+        .porta.feta { border-color: rgba(111, 220, 140, .5); background: linear-gradient(180deg, rgba(111, 220, 140, .16), rgba(20, 11, 38, .4) 60%), var(--pedra); }
+
+        .numeral { font-family: var(--f-titol); font-size: 1.05rem; color: var(--or); opacity: .85; letter-spacing: .08em; }
+        .emoji {
+            width: 78px; height: 78px; border-radius: 50%; display: grid; place-items: center; font-size: 2.3rem;
+            background: radial-gradient(circle at 40% 35%, rgba(255, 207, 92, .35), rgba(255, 138, 31, .12) 60%, transparent 70%);
+            box-shadow: 0 0 0 1px var(--vora);
+            transition: transform .35s;
+        }
+        .porta:hover .emoji { transform: scale(1.1) rotate(-6deg); }
+        .porta h2 { font-family: var(--f-titol); font-weight: 400; font-size: 1.32rem; line-height: 1.15; color: var(--text); }
+        .porta p { color: var(--suau); font-size: .92rem; line-height: 1.45; flex: 1; }
+
+        .boto-jugar {
+            display: inline-flex; align-items: center; justify-content: center; gap: .5rem; width: 100%;
+            padding: .8rem 1rem; border-radius: 14px; text-decoration: none;
+            font-weight: 800; letter-spacing: .06em; text-transform: uppercase; font-size: .9rem; color: #2a1200;
+            background: linear-gradient(180deg, #ffb35c, var(--carbassa));
+            box-shadow: 0 4px 0 var(--carbassa-fosc), 0 10px 24px -8px rgba(255, 138, 31, .7);
+            transition: transform .15s, box-shadow .15s;
+        }
+        .boto-jugar:hover { transform: translateY(-2px); box-shadow: 0 6px 0 var(--carbassa-fosc), 0 14px 28px -8px rgba(255, 138, 31, .8); }
+        .boto-jugar:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--carbassa-fosc); }
+        .boto-jugar:focus-visible, .boto-icona:focus-visible, .xip:focus-visible, .boto-gran:focus-visible { outline: 3px solid var(--or); outline-offset: 3px; }
+
+        .estat { font-size: .78rem; font-weight: 700; color: var(--suau); display: flex; align-items: center; gap: .35rem; min-height: 1.2em; }
+        .porta.visitada .estat { color: var(--or); }
+        .porta.feta .estat { color: var(--verd); }
+
+        /* ================= EL BAGUL (contrasenya) ================= */
+        .bagul {
+            position: relative; max-width: 640px; margin: 0 auto; padding: 2rem clamp(1rem, 4vw, 2.2rem) 1.8rem;
+            border-radius: 28px; text-align: center;
+            background:
+                repeating-linear-gradient(90deg, rgba(0, 0, 0, .12) 0 2px, transparent 2px 46px),
+                linear-gradient(180deg, #7a4220, #4d2610);
+            border: 3px solid #c48a3a;
+            box-shadow: inset 0 0 0 6px rgba(0, 0, 0, .18), inset 0 2px 0 rgba(255, 220, 160, .3), 0 30px 70px -20px rgba(0, 0, 0, .9), 0 0 60px -10px rgba(255, 138, 31, .35);
+        }
+        .bagul::before, .bagul::after {
+            content: ""; position: absolute; top: 16px; width: 18px; height: 18px; border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #ffe4a0, #b07a2a); box-shadow: 0 2px 0 rgba(0, 0, 0, .4);
+        }
+        .bagul::before { left: 16px; } .bagul::after { right: 16px; }
+        .bagul-img { display: block; width: clamp(120px, 30vw, 190px); aspect-ratio: 1; object-fit: cover; border-radius: 50%; margin: -5.5rem auto .6rem; border: 4px solid #c48a3a; box-shadow: 0 0 40px rgba(255, 207, 92, .45), 0 10px 30px rgba(0, 0, 0, .7); }
+        .bagul { margin-top: 5rem; }
+        .bagul.tremola { animation: tremola .5s; }
+        @keyframes tremola { 20%, 60% { transform: translateX(-8px) rotate(-.6deg); } 40%, 80% { transform: translateX(8px) rotate(.6deg); } }
+
+        .bagul h2 { font-family: var(--f-titol); font-weight: 400; font-size: clamp(1.6rem, 4vw, 2.2rem); color: #ffe7b0; text-shadow: 0 3px 0 #2b1205; }
+        .bagul .pista { margin: .5rem auto 1.4rem; max-width: 44ch; color: #f5d9b5; font-size: .98rem; }
+
+        .segells { display: grid; grid-template-columns: repeat(8, 1fr); gap: clamp(4px, 1.4vw, 10px); max-width: 520px; margin: 0 auto; }
+        .segell { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .segell span { font-family: var(--f-titol); font-size: .78rem; color: #f5d9b5; opacity: .8; }
+        .segell input {
+            width: 100%; aspect-ratio: 3 / 4; text-align: center; text-transform: uppercase;
+            font-family: var(--f-titol); font-size: clamp(1.2rem, 4.6vw, 2rem); color: #2b1205;
+            border-radius: 12px; border: 2px solid #c48a3a;
+            background: linear-gradient(180deg, #f6e3bf, #e2c48f);
+            box-shadow: inset 0 3px 6px rgba(0, 0, 0, .25);
+            outline: none; caret-color: var(--carbassa-fosc);
+            transition: transform .2s, box-shadow .2s, background .3s;
+        }
+        .segell input:focus { box-shadow: inset 0 3px 6px rgba(0, 0, 0, .2), 0 0 0 3px var(--or); transform: translateY(-2px); }
+        .segell input.ple { background: radial-gradient(circle at 50% 40%, #fff3c4, #ffc35c); box-shadow: inset 0 2px 4px rgba(0, 0, 0, .15), 0 0 16px rgba(255, 207, 92, .6); }
+        .segell input.pop { animation: pop .35s; }
+        @keyframes pop { 50% { transform: scale(1.15); } }
+
+        .boto-gran {
+            margin-top: 1.5rem; padding: .95rem 2rem; border-radius: 16px;
+            font-weight: 800; font-size: 1.05rem; letter-spacing: .05em; text-transform: uppercase; color: #12301c;
+            background: linear-gradient(180deg, #a2f0b5, var(--verd));
+            box-shadow: 0 5px 0 #2f9a52, 0 14px 30px -10px rgba(111, 220, 140, .7);
+            transition: transform .15s, box-shadow .15s, opacity .2s;
+        }
+        .boto-gran:hover { transform: translateY(-2px); }
+        .boto-gran:active { transform: translateY(3px); box-shadow: 0 2px 0 #2f9a52; }
+        .boto-gran:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+        .missatge { margin-top: 1rem; min-height: 1.5em; font-weight: 700; color: #ffe7b0; }
+        .missatge.error { color: #ffb0a0; }
+
+        footer { margin-top: 3rem; text-align: center; color: var(--suau); font-size: .85rem; }
+        footer button { text-decoration: underline; color: var(--suau); opacity: .7; font-size: .8rem; margin-top: .4rem; }
+        footer button:hover { opacity: 1; }
+
+        /* ================= PANTALLES (inici / victòria / temps) ================= */
+        .pantalla {
+            position: fixed; inset: 0; z-index: 50; display: none; place-items: center; padding: 16px;
+            background: radial-gradient(circle at 50% 40%, rgba(58, 29, 99, .92), rgba(10, 5, 20, .96));
+            backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+            overflow-y: auto;
+        }
+        .pantalla.oberta { display: grid; animation: fos .4s; }
+        @keyframes fos { from { opacity: 0; } }
+        .caixa { max-width: 620px; width: 100%; text-align: center; padding: clamp(1.4rem, 5vw, 2.6rem); border-radius: 30px; background: rgba(255, 255, 255, .05); border: 1px solid var(--vora); animation: entra .6s cubic-bezier(.2, 1.4, .4, 1); }
+        @keyframes entra { from { transform: scale(.85) translateY(20px); opacity: 0; } }
+        .caixa h2 { font-family: var(--f-titol); font-weight: 400; font-size: clamp(2rem, 6vw, 3rem); line-height: 1.05; color: var(--or); margin: .6rem 0; }
+        .caixa p { color: var(--suau); line-height: 1.6; margin-bottom: .8rem; }
+        .caixa .gran-emoji { font-size: 3.6rem; display: inline-block; animation: gronxa 2.4s ease-in-out infinite; }
+        @keyframes gronxa { 50% { transform: rotate(8deg) translateY(-6px); } }
+
+        .xips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 1rem 0 .4rem; }
+        .xip { padding: .55rem 1rem; border-radius: 999px; font-weight: 700; border: 1px solid var(--vora); background: var(--pedra); transition: background .2s, color .2s; }
+        .form-equip { display: grid; gap: .6rem; margin-top: .4rem; }
+        .camp-equip { display: grid; gap: 6px; font-weight: 800; text-align: left; }
+        .camp-equip span, .etiqueta-noms span { font-weight: 600; color: var(--suau); font-size: .85rem; }
+        .etiqueta-noms { font-weight: 800; text-align: left; margin: .3rem 0 0 !important; color: var(--text) !important; }
+        .noms-equip { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; }
+        .form-equip input {
+            width: 100%; padding: .7rem .9rem; border-radius: 12px; font: inherit; font-weight: 700; color: var(--text);
+            background: rgba(255, 255, 255, .07); border: 1px solid var(--vora); outline: none;
+        }
+        .form-equip input:focus { border-color: var(--or); box-shadow: 0 0 0 3px rgba(255, 207, 92, .25); }
+        .form-equip .boto-gran { justify-self: center; }
+        .temps-gran { font-family: var(--f-titol); font-size: 3rem; color: var(--or); margin: .4rem 0 0; }
+        .xip[aria-pressed="true"] { background: var(--carbassa); color: #2a1200; border-color: var(--carbassa); }
+        .petit { font-size: .82rem; opacity: .8; }
+
+        canvas#festa { position: fixed; inset: 0; z-index: 49; pointer-events: none; }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+            .rat-penat, .fulla { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Escena de fons: lluna, estrelles, ratpenats, fulles, boira i turons amb carbasses -->
+    <div class="escena" aria-hidden="true">
+        <div class="estrelles"></div>
+        <div class="lluna"></div>
+        <div id="ratpenats"></div>
+        <div id="fulles"></div>
+        <div class="boira"></div>
+        <div class="boira b2"></div>
+        <svg class="turons" viewBox="0 0 1200 200" preserveAspectRatio="none">
+            <path d="M0 120 Q150 60 320 110 T640 100 T960 90 T1200 110 V200 H0Z" fill="#1b0f30"/>
+            <path d="M0 160 Q200 110 420 150 T820 140 T1200 150 V200 H0Z" fill="#0f0820"/>
+        </svg>
+    </div>
+
+    <div class="app">
+
+        <div class="barra">
+            <div class="espelmes" id="espelmes" aria-label="Segells trobats">
+                <span class="comptador" id="comptador">0/8</span>
+            </div>
+            <div class="rellotge">
+                <span class="temps" id="temps" aria-live="off">--:--</span>
+                <button class="boto-icona" id="so" aria-label="Activar o silenciar el so" title="So">🔊</button>
+            </div>
+        </div>
+
+        <header class="capcalera">
+            <span class="etiqueta">🎃 Escape Room · Castanyada & Halloween 🌰</span>
+            <h1>El Misteri Musical<br>de la Nit</h1>
+            <p class="historia">
+                La nit de la Castanyada, el <b>Bruixot Estornut</b> (al·lèrgic a la pols de castanya!) va fer un
+                <b>ATXIM!</b> tan fort que la <b>Melodia de la Nit</b> es va trencar en <b>8 segells</b> escampats pel poble.
+                Recorreu els 8 llocs amb el gat <b>Marrameu</b>, recolliu els segells i col·loqueu-los al <b>bagul encantat</b>.
+            </p>
+        </header>
+
+        <main>
+            <p class="ajuda-mapa">🗺️ Toqueu cada lloc del mapa per començar el seu repte.</p>
+            <div class="poble" id="mapa">
+                <img src="img/poble.jpg" alt="Mapa del poble de nit: la torre del rellotge, la plaça, la parada de castanyes, l'hort de carbasses, el teatre i la torre del bruixot">
+                <div class="pins" id="pins"></div>
+            </div>
+            <div class="repartiment" id="repartiment"></div>
+        </main>
+
+        <section class="bagul" id="bagul" aria-labelledby="titol-bagul">
+            <img class="bagul-img" src="img/bagul.jpg" alt="">
+            <h2 id="titol-bagul">El bagul encantat</h2>
+            <p class="pista">Escriviu cada segell a la seva casella, <b>en l'ordre dels reptes (I → VIII)</b>. Cada segell que poseu fa sonar una nota…</p>
+            <div class="segells" id="segells"></div>
+            <button class="boto-gran" id="obrir">✨ Obrir el bagul</button>
+            <p class="missatge" id="missatge" role="status"></p>
+        </section>
+
+        <footer>
+            AulaTech · L'aula que jugues — Extres<br>
+            <span id="equip"></span><br>
+            <button id="reiniciar">Reiniciar la partida (docent)</button>
+        </footer>
+    </div>
+
+    <!-- Pantalla d'inici -->
+    <div class="pantalla" id="p-inici" role="dialog" aria-modal="true" aria-labelledby="t-inici">
+        <div class="caixa">
+            <span class="gran-emoji" id="retrat-inici">🧙</span>
+            <h2 id="t-inici">La nit que el bruixot va estornudar</h2>
+            <p>Un esternut màgic ha trencat la <b>Melodia de la Nit</b> en <b>8 segells</b>. Visiteu els 8 llocs del poble, supereu cada repte i col·loqueu els segells al bagul abans que s'acabi el temps.</p>
+            <form id="form-equip" class="form-equip" autocomplete="off">
+                <label class="camp-equip">Nom de l'equip <span>(opcional)</span>
+                    <input id="nom-equip" maxlength="30" placeholder="Els Panellets Valents">
+                </label>
+                <p class="etiqueta-noms">Qui forma l'equip? <span>(mínim un nom)</span></p>
+                <div class="noms-equip">
+                    <input class="nom-membre" maxlength="20" placeholder="Nom 1" aria-label="Nom 1" required>
+                    <input class="nom-membre" maxlength="20" placeholder="Nom 2" aria-label="Nom 2">
+                    <input class="nom-membre" maxlength="20" placeholder="Nom 3" aria-label="Nom 3">
+                    <input class="nom-membre" maxlength="20" placeholder="Nom 4" aria-label="Nom 4">
+                    <input class="nom-membre" maxlength="20" placeholder="Nom 5" aria-label="Nom 5">
+                </div>
+                <p class="temps-gran">⏳ 50:00</p>
+                <p class="petit">Teniu <b>50 minuts</b>. Cada repte perdut, cada intent fallit al bagul i cada <b>pista</b> de Marrameu <b>resten 1 minut</b>.</p>
+                <button class="boto-gran" id="comencar" type="submit">🎃 Comencem!</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Pantalla de victòria -->
+    <!-- Fitxa d'un lloc del mapa -->
+    <div class="pantalla" id="p-fitxa" role="dialog" aria-modal="true" aria-labelledby="t-fitxa">
+        <div class="caixa fitxa">
+            <img id="fitxa-img" alt="">
+            <span class="numeral" id="fitxa-num"></span>
+            <h2 id="t-fitxa"></h2>
+            <p id="fitxa-desc"></p>
+            <p class="fitxa-estat" id="fitxa-estat"></p>
+            <div class="fitxa-botons">
+                <a class="boto-gran" id="fitxa-anar" href="#">Anar-hi →</a>
+                <button class="xip" id="fitxa-tancar">Tornar al mapa</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="pantalla" id="p-victoria" role="dialog" aria-modal="true" aria-labelledby="t-victoria">
+        <div class="caixa">
+            <span class="gran-emoji">🎶</span>
+            <h2 id="t-victoria">El bagul s'ha obert!</h2>
+            <p>La música torna a sonar per tot el poble. La Castanyera us convida a castanyes i panellets, i el bruixot promet no estornudar més encanteris.</p>
+            <p id="resum-victoria"></p>
+            <div class="fitxa-botons">
+                <a class="boto-gran" href="diploma.html">🎓 Veure el diploma</a>
+                <button class="xip" id="tancar-victoria">Tornar al mapa</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pantalla de temps esgotat -->
+    <div class="pantalla" id="p-temps" role="dialog" aria-modal="true" aria-labelledby="t-temps">
+        <div class="caixa">
+            <span class="gran-emoji" id="retrat-temps">⌛</span>
+            <h2 id="t-temps">S'ha acabat el temps!</h2>
+            <p>El bruixot s'ha endut el bagul a la seva torre… La Melodia de la Nit haurà d'esperar a l'any que ve.</p>
+            <p id="resum-temps"></p>
+            <div class="fitxa-botons">
+                <a class="boto-gran" href="diploma.html">🎓 Veure el diploma</a>
+                <button class="xip" id="continuar">Seguir jugant fora de temps</button>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="festa"></canvas>
+
+    <script src="comu.js?v=2"></script>
+    <script>
+        // [fitxer, lloc del poble, de què va, emoji]. L'ordre és el de la contrasenya.
+        const REPTES = [
+            ['teoria.html', 'La Torre del Rellotge', 'Les notes corren pel pentagrama del rellotge. Llegiu-les abans que toquin les campanades!', '🕰️'],
+            ['repte_ritmic_marrameu.html', 'La Plaça del Marrameu', 'Ecos rítmics per tota la plaça: escolteu, trieu la partitura i piqueu-los vosaltres.', '🥁'],
+            ['lapsuspoeta.html', 'La Parada de la Castanyera', 'Paraules musicals dins les paperines. Cada error crema una castanya!', '🌰'],
+            ['castaween_simon_says.html', "L'Hort de les Carbasses", 'Quatre carbasses que canten notes. Repetiu-les… i al final, només d\'oïda.', '🎃'],
+            ['relacionar_compositors.html', 'El Teatre de la Banda', "L'esternut ha barrejat els instruments. Torneu cadascun a la seva família.", '🎻'],
+            ['jeroglific_castanyada.html', 'La Biblioteca del Bruixot', 'Memory de figures, noms i valors entre llibres que volen.', '📚'],
+            ['halloween_ritmes.html', 'La Cuina del Calder', 'Ompliu cada compàs exactament… o el calder vessarà!', '🧪'],
+            ['endevinalla_notes_halloween.html', 'La Porta del Bruixot', 'Duel final contra el bruixot: veritat o mite, oïda i lectura.', '🚪'],
+        ];
+        // La contrasenya depèn de la llavor d'aquest ordinador (comu.js): cada grup en té una de diferent.
+        const ROMANS = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'];
+        const CLAU = 'aulatech-escape-halloween-1';
+
+        // ---------- Estat (es guarda al navegador per si es recarrega la pàgina) ----------
+        const estatBuit = () => ({ inici: null, durada: 0, penal: 0, segells: Array(8).fill(''), visitats: Array(8).fill(false), superats: Array(8).fill(false), guanyat: null, intents: 0 });
+        let estat = estatBuit();
+        // Els minijocs escriuen `superats` a la mateixa clau (comu.js)
+        const llegeix = () => { try { estat = { ...estatBuit(), ...JSON.parse(localStorage.getItem(CLAU)) }; } catch (e) {} };
+        llegeix();
+        const desa = () => { try { localStorage.setItem(CLAU, JSON.stringify(estat)); } catch (e) {} };
+
+        // ---------- So (Web Audio, sense fitxers) ----------
+        let ac = null, master = null, silenci = false;
+        try { silenci = localStorage.getItem(CLAU + '-so') === '0'; } catch (e) {}
+        const nota = n => 440 * Math.pow(2, (n - 69) / 12);
+        function audio() {
+            if (!ac) {
+                const AC = window.AudioContext || window.webkitAudioContext;
+                if (!AC) return null;
+                ac = new AC();
+                master = ac.createGain();
+                master.gain.value = silenci ? 0 : .55;
+                master.connect(ac.destination);
+            }
+            if (ac.state === 'suspended') ac.resume();
+            return ac;
+        }
+        function to(freq, t, dur, { tipus = 'sine', vol = .2, atac = .01 } = {}) {
+            const a = audio(); if (!a) return;
+            const o = a.createOscillator(), g = a.createGain();
+            o.type = tipus; o.frequency.value = freq;
+            g.gain.setValueAtTime(0, t);
+            g.gain.linearRampToValueAtTime(vol, t + atac);
+            g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+            o.connect(g); g.connect(master);
+            o.start(t); o.stop(t + dur + .05);
+        }
+        // Capseta de música: dues ones per fer-la més brillant
+        function capseta(midi, t, dur = 1.2, vol = .18) {
+            to(nota(midi), t, dur, { tipus: 'triangle', vol });
+            to(nota(midi + 12), t, dur * .6, { tipus: 'sine', vol: vol * .35 });
+        }
+        // La melodia de la nit (Re menor): cada segell en toca una nota
+        const MELODIA = [62, 65, 69, 67, 65, 64, 65, 74];
+        const so = {
+            segell(i) { const a = audio(); if (a) capseta(MELODIA[i], a.currentTime); },
+            error() {
+                const a = audio(); if (!a) return; const t = a.currentTime;
+                [0, .18, .36].forEach((d, k) => to(nota(57 - k * 2), t + d, .35, { tipus: 'square', vol: .06 }));
+            },
+            obrir() {
+                const a = audio(); if (!a) return; const t = a.currentTime;
+                MELODIA.forEach((m, i) => capseta(m, t + i * .22, 1.4));
+                [50, 57, 62, 65, 69].forEach(m => to(nota(m), t + MELODIA.length * .22, 3, { tipus: 'triangle', vol: .08, atac: .2 }));
+            },
+            clic() { const a = audio(); if (a) to(nota(81), a.currentTime, .12, { tipus: 'sine', vol: .08 }); },
+            batec() {
+                const a = audio(); if (!a) return; const t = a.currentTime;
+                to(60, t, .18, { vol: .3 }); to(55, t + .2, .22, { vol: .22 });
+            },
+        };
+        // Ambient suau: un acord greu que respira i, de tant en tant, una campaneta llunyana
+        let ambient = null;
+        function engegaAmbient() {
+            const a = audio(); if (!a || ambient) return;
+            const g = a.createGain(); g.gain.value = 0; g.connect(master);
+            const filtre = a.createBiquadFilter(); filtre.type = 'lowpass'; filtre.frequency.value = 500; filtre.connect(g);
+            [38, 45, 50].forEach((m, i) => {
+                const o = a.createOscillator(); o.type = 'sawtooth'; o.frequency.value = nota(m); o.detune.value = i * 4 - 4;
+                o.connect(filtre); o.start();
+            });
+            const lfo = a.createOscillator(), lfoG = a.createGain();
+            lfo.frequency.value = .07; lfoG.gain.value = 260; lfo.connect(lfoG); lfoG.connect(filtre.frequency); lfo.start();
+            g.gain.linearRampToValueAtTime(.035, a.currentTime + 4);
+            ambient = setInterval(() => {
+                if (Math.random() < .5) capseta([74, 77, 81, 69][Math.floor(Math.random() * 4)], a.currentTime, 2.5, .05);
+            }, 9000);
+        }
+
+        const botoSo = document.getElementById('so');
+        function pintaSo() { botoSo.textContent = silenci ? '🔇' : '🔊'; botoSo.setAttribute('aria-pressed', String(!silenci)); }
+        botoSo.addEventListener('click', () => {
+            silenci = !silenci;
+            try { localStorage.setItem(CLAU + '-so', silenci ? '0' : '1'); } catch (e) {}
+            if (audio()) master.gain.setTargetAtTime(silenci ? 0 : .55, ac.currentTime, .05);
+            engegaAmbient();
+            pintaSo();
+        });
+        pintaSo();
+
+        // ---------- Escena: ratpenats i fulles ----------
+        const RATPENAT = '<svg viewBox="0 0 64 32" fill="currentColor"><path d="M32 10c2-4 4-5 4-5l1 4c3-1 4 0 5 1 4-6 12-8 22-6-6 3-8 8-8 14-3-3-7-3-10 0-2-3-5-4-8-2-2 1-4 4-6 6-2-2-4-5-6-6-3-2-6-1-8 2-3-3-7-3-10 0 0-6-2-11-8-14 10-2 18 0 22 6 1-1 2-2 5-1l1-4s2 1 4 5z"/></svg>';
+        const contRat = document.getElementById('ratpenats');
+        [[12, 26, 0], [22, 34, -12], [8, 42, -26]].forEach(([top, dur, delay]) => {
+            const d = document.createElement('div');
+            d.className = 'rat-penat'; d.innerHTML = RATPENAT;
+            d.style.top = top + 'vh'; d.style.animationDuration = dur + 's'; d.style.animationDelay = delay + 's';
+            contRat.appendChild(d);
+        });
+        const contFulles = document.getElementById('fulles');
+        ['fulla', 'fulla', 'castanya', 'fulla', 'fulla', 'castanya'].forEach((e, i) => {
+            const f = document.createElement('span');
+            f.className = 'fulla'; f.innerHTML = Joc.icona(e, 26);
+            f.style.left = (8 + i * 16 + Math.random() * 6) + 'vw';
+            f.style.animationDuration = (14 + Math.random() * 10) + 's';
+            f.style.animationDelay = (-Math.random() * 20) + 's';
+            f.style.fontSize = (16 + Math.random() * 12) + 'px';
+            contFulles.appendChild(f);
+        });
+
+        // ---------- Espelmes de progrés ----------
+        const contEsp = document.getElementById('espelmes');
+        const comptador = document.getElementById('comptador');
+        const espelmes = REPTES.map(() => {
+            const e = document.createElement('span'); e.className = 'espelma';
+            contEsp.insertBefore(e, comptador); return e;
+        });
+
+        // ---------- Marcadors del mapa ----------
+        // Posició (% sobre la il·lustració img/poble.jpg) de cada lloc
+        const POSICIONS = [
+            [28.5, 25], // I   Torre del Rellotge
+            [55, 77],   // II  Plaça
+            [34, 60],   // III Parada de la Castanyera
+            [15, 85],   // IV  Hort de les carbasses
+            [62, 52],   // V   Teatre
+            [86, 31],   // VI  Biblioteca (finestra de la torre)
+            [88, 83],   // VII Cuina del calder
+            [83, 68],   // VIII Porta del bruixot
+        ];
+        const contPins = document.getElementById('pins');
+        const portes = REPTES.map(([fitxer, titol], i) => {
+            const p = document.createElement('button');
+            p.className = 'pin';
+            p.style.left = POSICIONS[i][0] + '%';
+            p.style.top = POSICIONS[i][1] + '%';
+            p.setAttribute('aria-label', `Repte ${ROMANS[i]}: ${titol}`);
+            p.innerHTML = `<span class="marca">${ROMANS[i]}</span><span class="nom">${titol}</span>`;
+            p.addEventListener('click', () => { so.clic(); obreFitxa(i); });
+            contPins.appendChild(p);
+            return p;
+        });
+
+        // Fitxa del lloc: imatge, descripció, estat i botó per anar-hi
+        const textEstat = i => {
+            const superats = estat.superats || [];
+            return estat.segells[i] ? '✓ Segell ja col·locat al bagul'
+                : superats[i] ? '⭐ Repte superat! Col·loqueu-ne el segell al bagul'
+                : estat.visitats[i] ? '🕯️ Hi heu entrat però encara no l\'heu superat'
+                : '🔒 Segell pendent';
+        };
+        function obreFitxa(i) {
+            const [fitxer, titol, desc] = REPTES[i];
+            document.getElementById('fitxa-img').src = `img/lloc-${i + 1}.jpg`;
+            document.getElementById('fitxa-num').textContent = `Repte ${ROMANS[i]}`;
+            document.getElementById('t-fitxa').textContent = titol;
+            document.getElementById('fitxa-desc').textContent = desc;
+            document.getElementById('fitxa-estat').textContent = textEstat(i);
+            const anar = document.getElementById('fitxa-anar');
+            anar.href = fitxer;
+            anar.onclick = () => { estat.visitats[i] = true; desa(); };
+            obre('p-fitxa');
+            anar.focus();
+        }
+        document.getElementById('fitxa-tancar').addEventListener('click', () => tanca('p-fitxa'));
+        document.getElementById('p-fitxa').addEventListener('click', e => { if (e.target.id === 'p-fitxa') tanca('p-fitxa'); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') tanca('p-fitxa'); });
+
+        // ---------- Segells del bagul ----------
+        const contSegells = document.getElementById('segells');
+        const caselles = REPTES.map((_, i) => {
+            const s = document.createElement('label'); s.className = 'segell';
+            s.innerHTML = `<input maxlength="1" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Segell del repte ${ROMANS[i]}"><span>${ROMANS[i]}</span>`;
+            contSegells.appendChild(s);
+            const inp = s.querySelector('input');
+            inp.value = estat.segells[i] || '';
+            inp.addEventListener('input', () => {
+                const v = inp.value.replace(/[^0-9a-z]/gi, '').slice(-1).toUpperCase();
+                inp.value = v;
+                const abans = estat.segells[i];
+                estat.segells[i] = v; desa();
+                if (v && v !== abans) {
+                    so.segell(i);
+                    inp.classList.remove('pop'); void inp.offsetWidth; inp.classList.add('pop');
+                    if (i < 7) caselles[i + 1].focus();
+                }
+                pinta();
+            });
+            inp.addEventListener('keydown', e => {
+                if (e.key === 'Backspace' && !inp.value && i > 0) caselles[i - 1].focus();
+                if (e.key === 'ArrowLeft' && i > 0) caselles[i - 1].focus();
+                if (e.key === 'ArrowRight' && i < 7) caselles[i + 1].focus();
+                if (e.key === 'Enter') obrir();
+            });
+            inp.addEventListener('paste', e => {
+                const txt = (e.clipboardData.getData('text') || '').replace(/[^0-9a-z]/gi, '').toUpperCase();
+                if (txt.length < 2) return;
+                e.preventDefault();
+                [...txt].slice(0, 8 - i).forEach((c, k) => { estat.segells[i + k] = c; caselles[i + k].value = c; });
+                desa(); pinta();
+            });
+            return inp;
+        });
+
+        function pinta() {
+            const plens = estat.segells.filter(Boolean).length;
+            comptador.textContent = `${plens}/8`;
+            const superats = estat.superats || [];
+            // Propera parada recomanada: el primer lloc encara no superat
+            const proxima = REPTES.findIndex((_, i) => !superats[i] && !estat.segells[i]);
+            estat.segells.forEach((v, i) => {
+                espelmes[i].classList.toggle('encesa', !!v);
+                caselles[i].classList.toggle('ple', !!v);
+                const p = portes[i];
+                p.classList.toggle('posat', !!v);
+                p.classList.toggle('superat', !v && !!superats[i]);
+                p.classList.toggle('proxima', i === proxima && !estat.guanyat);
+                p.querySelector('.marca').textContent = v || superats[i] ? '✓' : ROMANS[i];
+                p.title = textEstat(i);
+            });
+            document.getElementById('obrir').disabled = plens < 8 || !!estat.guanyat;
+        }
+
+        // ---------- Obrir el bagul ----------
+        const bagul = document.getElementById('bagul');
+        const missatge = document.getElementById('missatge');
+        function obrir() {
+            if (estat.guanyat) return;
+            if (estat.segells.filter(Boolean).length < 8) {
+                missatge.className = 'missatge error';
+                missatge.textContent = 'Encara falten segells! Ompliu les 8 caselles.';
+                return;
+            }
+            estat.intents++;
+            const CONTRASENYA = Joc.contrasenya();
+            const encerts = estat.segells.filter((c, i) => c === CONTRASENYA[i]).length;
+            if (encerts === 8) {
+                estat.guanyat = Date.now(); desa(); pinta();
+                missatge.className = 'missatge'; missatge.textContent = '';
+                so.obrir(); victoria();
+                return;
+            }
+            if (estat.durada) estat.penal += 60000;
+            desa();
+            so.error();
+            bagul.classList.remove('tremola'); void bagul.offsetWidth; bagul.classList.add('tremola');
+            missatge.className = 'missatge error';
+            missatge.textContent = encerts === 0
+                ? 'El bagul ni es mou… Cap segell és al seu lloc.'
+                : `El bagul grinyola… ${encerts} de 8 segells encaixen.${estat.durada ? ' (−1 min)' : ''}`;
+            tic();
+        }
+        document.getElementById('obrir').addEventListener('click', obrir);
+
+        // ---------- Rellotge ----------
+        const elTemps = document.getElementById('temps');
+        const mmss = ms => { const s = Math.max(0, Math.ceil(ms / 1000)); return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`; };
+        let avisTemps = false;
+        function tic() {
+            if (!estat.inici) { elTemps.textContent = '--:--'; return; }
+            const fi = estat.guanyat || Date.now();
+            if (!estat.durada) {
+                elTemps.textContent = mmss(fi - estat.inici);
+                elTemps.classList.remove('poc');
+                return;
+            }
+            const queda = estat.durada - (fi - estat.inici) - estat.penal;
+            elTemps.textContent = mmss(queda);
+            elTemps.classList.toggle('poc', queda < 5 * 60000 && !estat.guanyat);
+            if (!estat.guanyat && queda < 60000 && queda > 0 && Math.ceil(queda / 1000) % 2 === 0) so.batec();
+            if (queda <= 0 && !estat.guanyat && !avisTemps) { avisTemps = true; finalTemps(); }
+        }
+        setInterval(tic, 1000);
+
+        // ---------- Pantalles ----------
+        const obre = id => document.getElementById(id).classList.add('oberta');
+        const tanca = id => document.getElementById(id).classList.remove('oberta');
+
+        const minuts = 50; // Durada fixa de l'escape room
+        // Pròleg de la història amb els personatges
+        const PROLEG = [
+            { qui: 'castanyera', text: 'Ai, {noms}, quin ensurt! Estava torrant castanyes a la plaça quan el bruixot ha passat pel costat…' },
+            { qui: 'bruixot', text: 'A… a… <b>ATXIIIM!</b> Perdó, perdó! Sóc al·lèrgic a la pols de castanya… Uix. On és la música?' },
+            { qui: 'marrameu', text: 'Miau-mare! L\'esternut ha trencat la <b>Melodia de la Nit</b> en <b>8 segells</b> i s\'han escampat pel poble.' },
+            { qui: 'marrameu', text: 'Jo sóc en <b>Marrameu</b> i us acompanyaré, <b>{equip}</b>. A cada lloc hi ha un repte: superar-lo us dona un segell. Apunteu-lo i poseu-lo al <b>bagul</b>, en ordre.' },
+            { qui: 'marrameu', text: 'Si us encalleu, toqueu el botó <b>💡 Pista</b> i us ajudaré… però cada pista costa <b>1 minut</b>. Miau!' },
+            { qui: 'castanyera', text: 'Comenceu per la <b>Torre del Rellotge</b>, que des de l\'esternut no para de fer bum-bum-bum. Molta sort!' },
+        ];
+        document.getElementById('form-equip').addEventListener('submit', async ev => {
+            ev.preventDefault();
+            const noms = [...document.querySelectorAll('.nom-membre')].map(i => i.value.trim()).filter(Boolean);
+            if (!noms.length) { document.querySelector('.nom-membre').focus(); return; }
+            estat.noms = noms;
+            estat.equip = document.getElementById('nom-equip').value.trim();
+            estat.inici = Date.now(); estat.durada = minuts * 60000; desa();
+            tanca('p-inici'); engegaAmbient(); so.segell(0); tic();
+            await Joc.dialeg(PROLEG, { boto: 'Som-hi! 🎃' });
+        });
+
+        // Els personatges de la il·lustració diuen alguna cosa en clicar-los
+        const FRASES = {
+            marrameu: ['Miau! Seguiu l\'etiqueta «Propera parada».', 'Recordeu: els segells van al bagul en ordre, del I al VIII.', 'Si un repte us costa, torneu-hi: es pot repetir!'],
+            castanyera: ['Calentetes i grossetes! Les castanyes, eh, no els segells.', 'Apunteu cada segell en un paper, que el bruixot és molt despistat.', 'A la meva parada us espero amb paraules de música.'],
+            bruixot: ['A… a… atxim! Perdó…', 'Jo no volia trencar res, eh! Va ser la pols de castanya.', 'Si arribeu a la meva porta, us faré preguntes molt difícils. Atxim!'],
+        };
+        const repartiment = document.getElementById('repartiment');
+        if (repartiment) Object.keys(FRASES).forEach(qui => {
+            const b = document.createElement('button');
+            b.innerHTML = `${Joc.retrat(qui, 64)}<span>${Joc.PERSONATGES[qui].nom}</span>`;
+            b.addEventListener('click', () => Joc.diu(qui, Joc.tria(FRASES[qui])));
+            repartiment.appendChild(b);
+        });
+        document.getElementById('continuar').addEventListener('click', () => {
+            // Passa a cronòmetre: compta el temps total des de l'inici
+            estat.foraDeTemps = true; estat.durada = 0; estat.penal = 0; desa(); tanca('p-temps'); tic();
+        });
+        document.getElementById('tancar-victoria').addEventListener('click', () => { tanca('p-victoria'); aturaFesta(); });
+        document.getElementById('reiniciar').addEventListener('click', () => {
+            if (!confirm('Segur que voleu esborrar els segells i començar de nou?')) return;
+            estat = estatBuit(); desa(); Joc.novaLlavor(); pintaEquip();
+            caselles.forEach(c => c.value = '');
+            missatge.textContent = ''; avisTemps = false;
+            tanca('p-victoria'); aturaFesta(); pinta(); tic(); obre('p-inici');
+        });
+
+        // Final quan s'acaba el temps: el bruixot es queda la música
+        const segellsBons = () => { const c = Joc.contrasenya(); return estat.segells.filter((v, i) => v === c[i]).length; };
+        async function finalTemps() {
+            if (!estat.fiTemps) { estat.fiTemps = Date.now(); estat.segellsFinal = segellsBons(); desa(); }
+            const superats = (estat.superats || []).filter(Boolean).length;
+            document.getElementById('resum-temps').innerHTML =
+                `🏅 Reptes superats: <b>${superats} de 8</b> · 🔑 Segells al bagul: <b>${estat.segellsFinal} de 8</b>`;
+            document.querySelectorAll('.pantalla.oberta').forEach(p => p.classList.remove('oberta'));
+            await Joc.dialeg([
+                { qui: 'bruixot', text: 'A… a… <b>ATXIIIM!</b> Tic-tac, s\'ha acabat el temps! Em quedo el bagul… i la Melodia de la Nit, a la meva torre.' },
+                { qui: 'castanyera', text: `No patiu, {noms}: heu superat <b>${superats} reptes</b>. Això és molta música recuperada!` },
+                { qui: 'marrameu', text: 'Miau… L\'any que ve tornarem a intentar-ho. Mentrestant, aquí teniu el vostre <b>diploma</b>.' },
+            ], { boto: 'Veure el resultat' });
+            obre('p-temps');
+        }
+
+        async function victoria() {
+            const total = estat.guanyat - estat.inici;
+            document.getElementById('resum-victoria').innerHTML =
+                `⏱️ Temps: <b>${mmss(total)}</b> · 🔑 Intents: <b>${estat.intents}</b>`;
+            festa();
+            await Joc.espera(2600);
+            await Joc.dialeg([
+                { qui: 'marrameu', text: 'Escolteu! És la <b>Melodia de la Nit</b>! Torna a sonar per tot el poble! Miaaau!' },
+                { qui: 'bruixot', text: 'Gràcies, gràcies… i perdó per l\'esternut. A partir d\'ara, castanyes només amb mascareta. A… a… (no!) Ja està.' },
+                { qui: 'castanyera', text: 'Doncs ara, tothom a la plaça: castanyes, moniatos i panellets per a tothom. Gràcies, {noms}! Bona Castanyada!' },
+            ], { boto: 'Bona Castanyada! 🌰' });
+            obre('p-victoria');
+            document.querySelector('#p-victoria .boto-gran').focus();
+        }
+
+        // ---------- Festa final: pluja de carbasses, castanyes i notes ----------
+        const canvas = document.getElementById('festa'), ctx = canvas.getContext('2d');
+        let particules = [], raf = null;
+        function festa() {
+            canvas.width = innerWidth * devicePixelRatio; canvas.height = innerHeight * devicePixelRatio;
+            ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+            const em = ['🎃', '🌰', '🍂', '🎶', '✨', '🍁', '🎵', '🦇'];
+            particules = Array.from({ length: 90 }, () => ({
+                x: Math.random() * innerWidth, y: -20 - Math.random() * innerHeight,
+                v: 1.5 + Math.random() * 3, d: (Math.random() - .5) * 1.5,
+                r: Math.random() * 6, vr: (Math.random() - .5) * .06,
+                m: 18 + Math.random() * 22, e: em[Math.floor(Math.random() * em.length)],
+            }));
+            cancelAnimationFrame(raf);
+            const pas = () => {
+                ctx.clearRect(0, 0, innerWidth, innerHeight);
+                particules.forEach(p => {
+                    p.y += p.v; p.x += p.d + Math.sin(p.y / 40) * .6; p.r += p.vr;
+                    if (p.y > innerHeight + 30) { p.y = -30; p.x = Math.random() * innerWidth; }
+                    ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r);
+                    ctx.font = `${p.m}px serif`; ctx.textAlign = 'center'; ctx.fillText(p.e, 0, 0);
+                    ctx.restore();
+                });
+                raf = requestAnimationFrame(pas);
+            };
+            pas();
+        }
+        function aturaFesta() { cancelAnimationFrame(raf); ctx.clearRect(0, 0, canvas.width, canvas.height); }
+
+        // Codi d'equip: cada ordinador té els seus segells
+        const pintaEquip = () => { document.getElementById('equip').textContent = `Codi d'equip: ${Joc.codiEquip()} · els segells d'aquest ordinador són únics`; };
+        pintaEquip();
+
+        // ---------- Arrencada ----------
+        pinta(); tic();
+        document.getElementById('retrat-inici').innerHTML = Joc.retrat('bruixot', 110);
+        if (!estat.inici) obre('p-inici');
+        else if (estat.guanyat) { /* partida acabada: es veu el bagul obert */ missatge.textContent = '🎶 El bagul ja està obert. Bona Castanyada!'; }
+        // Retrat del bruixot a la pantalla de fi de temps
+        document.getElementById('retrat-temps').innerHTML = Joc.retrat('bruixot', 110);
+        // En tornar d'un minijoc (també des de la memòria cau del navegador), refresca l'estat
+        addEventListener('pageshow', () => { llegeix(); caselles.forEach((c, i) => c.value = estat.segells[i] || ''); pinta(); tic(); });
+        // Els navegadors només deixen sonar àudio després d'un clic
+        document.addEventListener('pointerdown', engegaAmbient, { once: true });
+    </script>
+</body>
+</html>

@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>La Biblioteca del Bruixot · Escape Room de la Nit</title>
+<link rel="stylesheet" href="comu.css?v=2">
+<style>
+    .j-h1 { font-size: clamp(1.7rem, 6vw, 2.6rem); }
+    .j-intro { margin-bottom: 1rem; }
+    .estrelles { color: var(--or); letter-spacing: .1em; }
+    .j-xip.perill { border-color: var(--vermell); color: var(--vermell); }
+
+    /* Prestatge de fusta darrere del tauler */
+    .prestatge {
+        border-radius: 20px; padding: 14px 10px; max-width: 560px; margin: 0 auto;
+        background:
+            repeating-linear-gradient(180deg, transparent 0 calc(33.33% - 8px), #5a2e12 calc(33.33% - 8px) 33.33%),
+            linear-gradient(180deg, #3a2010, #2a170c);
+        border: 1px solid var(--vora); box-shadow: inset 0 0 30px rgba(0, 0, 0, .6);
+    }
+    .tauler { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .tauler.esternut { animation: j-tremola .5s 2; }
+
+    /* ---------- Cartes amb gir 3D ---------- */
+    .carta { aspect-ratio: 3 / 4; perspective: 800px; padding: 0; border-radius: 12px; }
+    .carta .int {
+        position: relative; display: block; width: 100%; height: 100%;
+        transform-style: preserve-3d; -webkit-transform-style: preserve-3d;
+        transition: transform .5s cubic-bezier(.3, 1.3, .5, 1);
+    }
+    .carta.girada .int, .carta.feta .int { transform: rotateY(180deg); }
+    .carta .cara {
+        position: absolute; inset: 0; border-radius: 12px; display: grid; place-items: center; text-align: center;
+        backface-visibility: hidden; -webkit-backface-visibility: hidden; overflow: hidden;
+    }
+    /* Dors: tapa de llibre de pell amb ornament daurat */
+    .carta .dors {
+        background:
+            radial-gradient(circle at 50% 50%, rgba(255, 207, 92, .25) 0 18%, transparent 19%),
+            linear-gradient(135deg, var(--l1, #5b2a8c), var(--l2, #2d1250));
+        border: 2px solid #c9a24a; box-shadow: inset 0 0 0 4px rgba(0, 0, 0, .25), inset 0 0 0 6px rgba(201, 162, 74, .5), 0 6px 12px -4px rgba(0, 0, 0, .8);
+        font-size: clamp(1.3rem, 6vw, 1.8rem);
+    }
+    .tauler.f2 .dors { --l1: #2f6b45; --l2: #153523; }
+    .carta .dors .j-icona-img { width: 52%; height: auto; }
+    .carta:hover:not(.girada):not(.feta) .dors { filter: brightness(1.25); }
+    .carta .face { transform: rotateY(180deg); padding: 4px; border: 2px solid #e2c48f; color: var(--tinta); }
+    .carta .face .glif { font-size: clamp(2.1rem, 9vw, 3rem); line-height: 1; }
+    .carta .face svg { width: 70%; }
+    .carta .face .txt { font-weight: 800; font-size: clamp(.72rem, 3.3vw, 1rem); line-height: 1.15; overflow-wrap: anywhere; }
+    .carta .face .txt.valor { font-family: var(--f-titol); font-weight: 400; font-size: clamp(.95rem, 4.4vw, 1.35rem); color: #5a2e12; }
+    .carta.feta .face { border-color: var(--or); animation: brilla 1s ease-out; box-shadow: 0 0 0 3px var(--or), 0 0 22px rgba(255, 207, 92, .8); }
+    .carta.feta { cursor: default; }
+    .carta.j-entra { animation-fill-mode: backwards; }
+    @keyframes brilla { 0% { filter: brightness(1.6); } 100% { filter: none; } }
+
+    /* ---------- Fase 3: equivalències ---------- */
+    .pregunta { padding: 1rem; text-align: center; font-size: 1.1rem; font-weight: 700; line-height: 2; margin-bottom: .8rem; }
+    .pregunta .musica { font-size: 2rem; vertical-align: -.25em; }
+    .pregunta b { color: #7a3b12; }
+    .espelma { display: flex; align-items: center; gap: 8px; max-width: 320px; margin: 0 auto 1rem; font-size: 1.3rem; }
+    .espelma .barra { flex: 1; height: 10px; border-radius: 99px; background: rgba(255, 255, 255, .1); overflow: hidden; }
+    .espelma .barra i { display: block; height: 100%; width: 100%; background: linear-gradient(90deg, var(--carbassa), var(--or)); }
+    .espelma.alerta .barra i { background: var(--vermell); }
+    .equiv { grid-template-columns: repeat(2, 1fr); }
+    .equiv .j-opcio { display: grid; justify-items: center; gap: 6px; min-height: 92px; color: var(--text); }
+    .equiv .j-ritme { flex-wrap: wrap; justify-content: center; max-width: 100%; color: var(--lluna); }
+    .equiv .num { font-size: .85rem; color: var(--suau); }
+    .equiv .nomf { font-size: .8rem; color: var(--suau); }
+    .equiv .mes { font-family: var(--f-text); font-size: .9rem; color: var(--suau); align-self: center; }
+    /* Pantalla d'ordinador: 6 columnes perquè les 12 cartes hi càpiguen sense fer scroll */
+    @media (min-width: 640px) {
+        .prestatge {
+            max-width: 820px;
+            background:
+                repeating-linear-gradient(180deg, transparent 0 calc(50% - 8px), #5a2e12 calc(50% - 8px) 50%),
+                linear-gradient(180deg, #3a2010, #2a170c);
+        }
+        .tauler { grid-template-columns: repeat(6, 1fr); }
+    }
+    @media (max-width: 420px) {
+        .tauler { gap: 7px; }
+        .prestatge { padding: 10px 7px; }
+        .equiv .j-ritme { font-size: 1.6rem !important; }
+    }
+</style>
+</head>
+<body>
+<main class="j-main">
+    <section class="j-panell">
+        <h1 class="j-h1">La Biblioteca del Bruixot</h1>
+        <p class="j-intro" id="consigna">Gira les cartes de dues en dues i troba les <b>parelles</b>.</p>
+        <div class="j-hud" aria-live="polite">
+            <span class="j-xip" id="hFase">📚 Llibre 1/3</span>
+            <span class="j-xip" id="hTemps">⏱ 0:00</span>
+            <span class="j-xip" id="hMov">🔄 0</span>
+            <span class="j-xip" id="hPar">✨ 0/6</span>
+            <span class="j-xip" id="hInt" title="Intents que queden en aquest llibre"></span>
+            <span class="j-xip estrelles" id="hStar" aria-label="Estrelles">★★★</span>
+        </div>
+        <div class="j-progres"><i id="barra"></i></div>
+        <div id="escena"></div>
+    </section>
+</main>
+
+<script src="comu.js?v=2"></script>
+<script>
+/* Repte VI · La Biblioteca del Bruixot
+   Memory en tres llibres: figura ↔ nom, figura ↔ valor (4/4) i equivalències ràpides. */
+Joc.capcalera({ repte: 6, titol: 'La Biblioteca del Bruixot' });
+const $ = Joc.$, F = Joc.FIGURES;
+const escena = $('#escena');
+
+// ======================================================================
+// BANC DE FIGURES (el docent el pot ampliar o retallar).
+// Llibre 1: cada partida en tria 6 d'aquestes per fer parelles figura ↔ nom.
+// Llibre 2: cada partida tria 6 valors diferents i, per a cada valor, una figura (nota o silenci).
+// Les claus són les de Joc.FIGURES.
+// ======================================================================
+const BANC_NOMS = ['rodona', 'blanca', 'blancaP', 'negra', 'negraP', 'corxera', 'semicorxera', 'sRodona', 'sBlanca', 'sNegra', 'sCorxera'];
+const BANC_VALORS = ['rodona', 'sRodona', 'blancaP', 'blanca', 'sBlanca', 'negraP', 'negra', 'sNegra', 'corxera', 'sCorxera', 'semicorxera'];
+
+// ======================================================================
+// BANC D'EQUIVALÈNCIES (llibre 3; el docent el pot ampliar). Cada partida en tria 5.
+//  · quantes: "Quantes <petita> caben en una <gran>?" (la resposta es calcula sola)
+//  · suma:    "Quina combinació dura el mateix que <objectiu>?" (bona + 3 dolentes)
+//  · quina:   "Quina figura dura el mateix que <combo>?" (bona entre 4 opcions)
+// ======================================================================
+const BANC_EQUIV = [
+    { tipus: 'quantes', petita: 'corxera', gran: 'negra' },
+    { tipus: 'quantes', petita: 'corxera', gran: 'blanca' },
+    { tipus: 'quantes', petita: 'negra', gran: 'rodona' },
+    { tipus: 'quantes', petita: 'semicorxera', gran: 'negra' },
+    { tipus: 'quantes', petita: 'corxera', gran: 'rodona' },
+    { tipus: 'quantes', petita: 'negra', gran: 'blanca' },
+    { tipus: 'quantes', petita: 'blanca', gran: 'rodona' },
+    { tipus: 'quantes', petita: 'semicorxera', gran: 'corxera' },
+    { tipus: 'quantes', petita: 'corxera', gran: 'negraP' },
+    { tipus: 'quantes', petita: 'negra', gran: 'blancaP' },
+    { tipus: 'quantes', petita: 'semicorxera', gran: 'blanca' },
+    { tipus: 'quantes', petita: 'sCorxera', gran: 'sNegra' },
+    { tipus: 'suma', objectiu: 'rodona', bona: ['blanca', 'negra', 'negra'], dolentes: [['blanca', 'negra'], ['blanca', 'blanca', 'negra'], ['negra', 'negra', 'corxera']] },
+    { tipus: 'suma', objectiu: 'blanca', bona: ['negra', 'corxera', 'corxera'], dolentes: [['negra', 'corxera'], ['negra', 'negra', 'negra'], ['corxera', 'corxera', 'corxera']] },
+    { tipus: 'suma', objectiu: 'blancaP', bona: ['blanca', 'negra'], dolentes: [['blanca', 'corxera'], ['negra', 'negra'], ['blanca', 'blanca']] },
+    { tipus: 'suma', objectiu: 'negraP', bona: ['negra', 'corxera'], dolentes: [['negra', 'negra'], ['corxera', 'corxera'], ['negra', 'semicorxera']] },
+    { tipus: 'suma', objectiu: 'negra', bona: ['corxera', 'semicorxera', 'semicorxera'], dolentes: [['corxera', 'corxera', 'corxera'], ['semicorxera', 'semicorxera'], ['negra', 'corxera']] },
+    { tipus: 'suma', objectiu: 'rodona', bona: ['blancaP', 'negra'], dolentes: [['blancaP', 'corxera'], ['blanca', 'negraP'], ['negraP', 'negraP']] },
+    { tipus: 'quina', combo: ['negra', 'corxera'], bona: 'negraP', opcions: ['negraP', 'blanca', 'negra', 'blancaP'] },
+    { tipus: 'quina', combo: ['blanca', 'negra'], bona: 'blancaP', opcions: ['blancaP', 'rodona', 'blanca', 'negraP'] },
+    { tipus: 'quina', combo: ['corxera', 'corxera'], bona: 'negra', opcions: ['negra', 'corxera', 'blanca', 'semicorxera'] },
+    { tipus: 'quina', combo: ['blanca', 'blanca'], bona: 'rodona', opcions: ['rodona', 'blancaP', 'blanca', 'negraP'] },
+    { tipus: 'quina', combo: ['semicorxera', 'semicorxera'], bona: 'corxera', opcions: ['corxera', 'negra', 'semicorxera', 'negraP'] },
+    { tipus: 'quina', combo: ['negra', 'negra', 'negra'], bona: 'blancaP', opcions: ['blancaP', 'rodona', 'blanca', 'negraP'] },
+];
+
+// ---------- Textos de figures ----------
+const PLURAL = { rodona: 'rodones', blanca: 'blanques', negra: 'negres', corxera: 'corxeres', semicorxera: 'semicorxeres', sCorxera: 'silencis de corxera', sNegra: 'silencis de negra' };
+const article = k => (F[k].silenci ? 'un ' : 'una ') + F[k].nom.toLowerCase();
+const curt = v => ({ 4: '4', 3: '3', 2: '2', 1.5: '1½', 1: '1', .5: '½', .25: '¼' })[v];
+const valorTxt = v => ({ 4: '4 temps', 3: '3 temps', 2: '2 temps', 1.5: '1 temps i ½', 1: '1 temps', .5: '½ temps', .25: '¼ de temps' })[v];
+
+// Dibuix d'una figura. Els silencis de rodona i blanca es fan en SVG amb una línia,
+// perquè sense pentagrama no es distingirien (la rodona penja, la blanca seu).
+function figura(k) {
+    if (k === 'sRodona' || k === 'sBlanca') {
+        const y = k === 'sRodona' ? 20 : 13;
+        return `<svg viewBox="0 0 40 34" aria-hidden="true"><line x1="2" x2="38" y1="20" y2="20" stroke="#2b1a0c" stroke-width="1.6"/>` +
+            `<rect x="12" y="${y}" width="16" height="7" fill="#2b1a0c"/></svg>`;
+    }
+    return `<span class="musica glif" aria-hidden="true">${F[k].glif}</span>`;
+}
+// Figura petita dins d'un text (sense títol, per no donar pistes)
+const figText = k => `<span class="musica">${F[k].glif}</span>`;
+
+// ---------- Estat ----------
+let E;
+// Conseqüències: cada llibre de Memory té INTENTS moviments com a màxim (espelmes que s'apaguen).
+// Al llibre 3 cal encertar-les totes: a la FALLADES_MAX-ena fallada (errada o espelma apagada), fracàs.
+const N_PARELLES = 6, N_EQUIV = 5, INTENTS = 16, FALLADES_MAX = 2;
+const estrelles = mov => mov <= 22 ? 3 : mov <= 27 ? 2 : 1;
+const NOTES = [60, 62, 64, 67, 69, 72, 74];
+// Pausa (pista o diàleg obert): l'espelma i el cronòmetre s'aturen i no es pot jugar
+const pausat = () => !!(Joc.enPausa && Joc.enPausa());
+let pausaDes = 0;
+window.addEventListener('joc-pausa', () => { pausaDes = Date.now(); });
+window.addEventListener('joc-repren', () => { if (E && pausaDes) E.inici += Date.now() - pausaDes; pausaDes = 0; });
+
+function hud() {
+    $('#hFase').textContent = `📚 Llibre ${E.fase}/3`;
+    $('#hMov').textContent = `🔄 ${E.movTotal}`;
+    $('#hPar').textContent = E.fase < 3 ? `✨ ${E.parelles}/${N_PARELLES}` : `❓ ${Math.min(E.q + 1, N_EQUIV)}/${N_EQUIV}`;
+    const xi = $('#hInt');
+    if (E.fase < 3) {
+        xi.innerHTML = `${Joc.icona('espelma', 22)} ${E.intents} intents`;
+        xi.classList.toggle('perill', E.intents <= 4);
+    } else {
+        const q = FALLADES_MAX - E.fallades;
+        xi.innerHTML = 'Oportunitats ' + Array.from({ length: FALLADES_MAX }, (_, n) => Joc.icona('carbassa', 22, n < q ? '' : 'apagada')).join('');
+        xi.classList.toggle('perill', q <= 1);
+    }
+    const s = estrelles(E.movTotal);
+    $('#hStar').textContent = '★'.repeat(s) + '☆'.repeat(3 - s);
+    const fet = E.fase === 1 ? E.parelles : E.fase === 2 ? N_PARELLES + E.parelles : 2 * N_PARELLES + E.q * 1.2;
+    $('#barra').style.width = Math.min(100, fet / (2 * N_PARELLES + 6) * 100) + '%';
+}
+function rellotge() {
+    clearInterval(E.tic);
+    E.tic = setInterval(() => {
+        if (pausat()) return; // cronòmetre aturat durant la pausa
+        const s = Math.floor((Date.now() - E.inici) / 1000);
+        $('#hTemps').textContent = `⏱ ${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+    }, 500);
+}
+
+// ================= LLIBRES 1 i 2: MEMORY =================
+function cartesFase(fase) {
+    let parells;
+    if (fase === 1) {
+        parells = Joc.barreja(BANC_NOMS).slice(0, N_PARELLES).map(k => ({ k, txt: F[k].nom, cls: 'txt' }));
+    } else {
+        // 6 valors diferents; per a cada valor, una figura a l'atzar (nota o silenci)
+        const perValor = {};
+        BANC_VALORS.forEach(k => (perValor[F[k].valor] = perValor[F[k].valor] || []).push(k));
+        const valors = Joc.barreja(Object.keys(perValor)).slice(0, N_PARELLES);
+        parells = valors.map(v => { const k = Joc.tria(perValor[v]); return { k, txt: valorTxt(F[k].valor), cls: 'txt valor' }; });
+    }
+    const cartes = [];
+    parells.forEach((p, i) => {
+        cartes.push({ par: i, k: p.k, html: figura(p.k), etiqueta: 'una figura musical' });
+        cartes.push({ par: i, k: p.k, html: `<span class="${p.cls}">${p.txt}</span>`, etiqueta: p.txt });
+    });
+    return Joc.barreja(cartes);
+}
+
+function muntaMemory(fase) {
+    E.fase = fase; E.parelles = 0; E.girades = []; E.bloc = false; E.seguides = 0; E.intents = INTENTS;
+    $('#consigna').innerHTML = (fase === 1
+        ? 'Llibre 1 · Uneix cada <b>figura</b> amb el seu <b>nom</b>.'
+        : 'Llibre 2 · Uneix cada <b>figura</b> amb el seu <b>valor</b> en un compàs de <b>4/4</b>.') +
+        ` Teniu <b>${INTENTS} intents</b>: si s’apaguen totes les espelmes, el bruixot us atrapa!`;
+    const cartes = cartesFase(fase);
+    escena.innerHTML = `<div class="prestatge"><div class="tauler f${fase}" id="tauler">${cartes.map((c, i) => `
+        <button class="carta j-entra" data-par="${c.par}" data-k="${c.k}" data-et="${c.etiqueta}" aria-label="Llibre tancat" style="animation-delay:${i * 30}ms">
+            <span class="int"><span class="cara dors" aria-hidden="true">${Joc.icona(fase === 1 ? 'lluna' : 'espelma', 48)}</span><span class="cara face j-paper">${c.html}</span></span>
+        </button>`).join('')}</div></div>`;
+    $('#tauler').addEventListener('click', e => {
+        const c = e.target.closest('.carta');
+        if (c) gira(c);
+    });
+    hud();
+}
+
+async function gira(c) {
+    if (E.bloc || pausat() || c.classList.contains('girada') || c.classList.contains('feta')) return;
+    Joc.so.clic();
+    c.classList.add('girada');
+    c.setAttribute('aria-label', c.dataset.et);
+    E.girades.push(c);
+    if (E.girades.length < 2) return;
+
+    const [a, b] = E.girades;
+    E.girades = []; E.movTotal++; E.intents--;
+    if (a.dataset.par === b.dataset.par) {
+        // Parella!
+        E.parelles++; E.seguides = 0; E.ratxa++;
+        [a, b].forEach(x => { x.classList.remove('girada'); x.classList.add('feta'); x.setAttribute('aria-label', x.dataset.et + ' (parella feta)'); });
+        sonaParella(a.dataset.k);
+        reaccioEncert();
+        hud();
+        if (E.parelles === N_PARELLES) { E.bloc = true; await Joc.espera(900); fiMemory(); }
+        else if (E.intents <= 0) { E.bloc = true; await Joc.espera(700); atrapats(); }
+    } else {
+        E.bloc = true; E.seguides++; E.ratxa = 0;
+        hud();
+        await Joc.espera(950);
+        [a, b].forEach(x => { x.classList.remove('girada'); x.setAttribute('aria-label', 'Llibre tancat'); });
+        // Sense intents: el bruixot us atrapa i el repte torna a començar
+        if (E.intents <= 0) return atrapats();
+        if (E.intents === 3) Joc.diu('marrameu', 'Compte! Només queden <b>3 espelmes</b>... Pensa bé on era cada carta!', 3000);
+        else if (E.seguides >= 3) esternut();
+        E.bloc = false;
+    }
+}
+
+// En fer parella sona una nota (llibre 1) o la figura amb la seva durada (llibre 2)
+function sonaParella(k) {
+    const t = Joc.so.ara(), f = F[k];
+    if (E.fase === 1) {
+        if (f.silenci) { Joc.so.cop('clic', t); Joc.so.cop('clic', t + .25); }
+        else Joc.so.nota(NOTES[E.parelles % NOTES.length], { t, dur: .7, vol: .2 });
+        Joc.so.nota(NOTES[E.parelles % NOTES.length] + 12, { t: t + .12, dur: .4, vol: .08 });
+    } else {
+        const negra = .45; // segons per temps (≈ 133 bpm)
+        for (let b = 0; b < Math.ceil(f.valor); b++) Joc.so.cop('clic', t + b * negra, .7);
+        if (!f.silenci) Joc.so.nota(72, { t, dur: f.valor * negra, vol: .2 });
+    }
+}
+
+function reaccioEncert() {
+    const n = E.parelles;
+    if (E.ratxa === 3) Joc.diu('bruixot', 'Tres seguides! Aquesta pàgina anava aquí... i aquesta... i aquesta! Quina memòria!');
+    else if (n === 3) Joc.diu(E.fase === 1 ? 'marrameu' : 'castanyera', E.fase === 1 ? 'Meitat del llibre endreçat! Miau-tingueu el ritme!' : 'Ja en teniu la meitat, bonics!');
+    else if (E.ratxa === 2) Joc.diu('bruixot', Joc.tria(['Oh! Ara recordo on anava aquesta!', 'Ben trobat! Jo l’havia guardat dins la tetera...', 'Aquesta és la meva preferida... o era l’altra?']), 2600);
+}
+
+// Tres errades seguides: el bruixot esternuda (només fa tremolar el prestatge)
+function esternut() {
+    E.seguides = 0; E.sternuts++;
+    Joc.diu('bruixot', Joc.tria([
+        'Un moment, que em ve... a... aaa... <b>ATXÍS!</b> Ui, perdó!',
+        'Això que busqueu és la... la... <b>ATXÍS!</b> Ai, la pols de castanya!',
+        'No us preocupeu, jo ho tinc tot contro... <b>ATXÍS!</b> ...lat.',
+    ]), 3200);
+    Joc.so.cop('caixa'); Joc.so.cop('charles', Joc.so.ara() + .1);
+    Joc.reinicia($('#tauler'), 'esternut');
+}
+
+// Fracàs: resta temps del rellotge global i el repte torna a començar des del llibre 1 amb cartes noves
+function atrapats() {
+    E.bloc = true;
+    cancelAnimationFrame(E.raf);
+    clearInterval(E.tic);
+    Joc.fracas({
+        motiu: E.fase < 3
+            ? 'S’han apagat totes les espelmes del llibre... i us he atrapat entre les prestatgeries!'
+            : 'Massa equivalències fallades... i us he atrapat entre les prestatgeries!',
+        reinicia: comencaRepte,
+    });
+}
+
+async function fiMemory() {
+    if (E.fase === 1) {
+        await Joc.dialeg([
+            { qui: 'bruixot', text: 'Fantàstic! El primer llibre ja té cada nom al seu lloc. Ara el segon: cada figura amb el seu <b>valor</b> en un compàs de <b>4/4</b>.' },
+            { qui: 'bruixot', text: 'Jo sempre dic que la negra amb punt val... val... <b>ATXÍS!</b> ...un temps i mig, això mateix. Escolteu com dura cada figura quan la trobeu!' },
+        ], { boto: 'Obrir el llibre 2' });
+        muntaMemory(2);
+    } else {
+        await Joc.dialeg([
+            { qui: 'marrameu', text: `Dos llibres endreçats amb <b>${E.movTotal} moviments</b>! Miau-ravellós.` },
+            { qui: 'bruixot', text: 'L’últim llibre és de comptes: les <b>equivalències</b>. Cal encertar-les <b>totes</b> abans que s’apagui l’espelma... jo sempre m’hi embolico!' },
+            { qui: 'marrameu', text: 'Només teniu <b>una fallada</b> de marge (una errada o una espelma apagada). A la segona, el bruixot us atrapa!' },
+        ], { boto: 'Obrir el llibre 3' });
+        comencaEquiv();
+    }
+}
+
+// ================= LLIBRE 3: EQUIVALÈNCIES =================
+function triaEquiv() {
+    // Almenys una de cada tipus i, si pot ser, cap de repetida respecte a l'intent anterior
+    const usades = E.equivUsades || [];
+    let banc = BANC_EQUIV.filter(q => !usades.includes(q));
+    if (banc.length < 8 || ['quantes', 'suma', 'quina'].some(t => !banc.some(q => q.tipus === t))) banc = BANC_EQUIV;
+    const de = t => Joc.barreja(banc.filter(q => q.tipus === t));
+    const base = [de('quantes')[0], de('suma')[0], de('quina')[0]];
+    const resta = Joc.barreja(banc.filter(q => !base.includes(q))).slice(0, N_EQUIV - 3);
+    const tria = Joc.barreja([...base, ...resta]);
+    E.equivUsades = [...usades, ...tria];
+    return tria;
+}
+
+const fila = (claus, mida) => Joc.ritmeHTML(claus, { mida });
+function prepara(Q) {
+    if (Q.tipus === 'quantes') {
+        const n = F[Q.gran].valor / F[Q.petita].valor;
+        const alt = Joc.barreja([2, 3, 4, 6, 8].filter(x => x !== n)).slice(0, 3);
+        return {
+            html: `${F[Q.petita].silenci ? 'Quants' : 'Quantes'} ${figText(Q.petita)} <b>${PLURAL[Q.petita]}</b> caben en ${article(Q.gran).replace(/(\S+) (.*)/, `$1 ${figText(Q.gran)} <b>$2</b>`)}?`,
+            opcions: [n, ...alt].map(x => ({ ok: x === n, html: `${fila(Array(x).fill(Q.petita), 1.6)}<span class="num">${x}</span>` })),
+            explica: `${article(Q.gran)} = ${valorTxt(F[Q.gran].valor)} = ${n} × ${curt(F[Q.petita].valor)}`,
+        };
+    }
+    if (Q.tipus === 'suma') {
+        return {
+            html: `Quina combinació dura el mateix que ${article(Q.objectiu).replace(/(\S+) (.*)/, `$1 ${figText(Q.objectiu)} <b>$2</b>`)}?`,
+            opcions: [{ ok: true, html: fila(Q.bona, 1.9) }, ...Q.dolentes.map(d => ({ ok: false, html: fila(d, 1.9) }))],
+            explica: `${Q.bona.map(k => curt(F[k].valor)).join(' + ')} = ${valorTxt(F[Q.objectiu].valor)}`,
+        };
+    }
+    return {
+        html: `Quina figura sola dura el mateix que ${fila(Q.combo, 2)} junts?`,
+        opcions: Q.opcions.map(k => ({ ok: k === Q.bona, html: `${fila([k], 2.4)}<span class="nomf">${F[k].nom}</span>` })),
+        explica: `${Q.combo.map(k => curt(F[k].valor)).join(' + ')} = ${valorTxt(F[Q.bona].valor)}: ${article(Q.bona)}`,
+    };
+}
+
+function comencaEquiv() {
+    E.fase = 3; E.q = 0; E.fallades = 0; E.preguntes = triaEquiv();
+    $('#consigna').innerHTML = 'Llibre 3 · <b>Equivalències</b>: encerta-les totes abans que s’apagui l’espelma. Només hi ha <b>una fallada</b> de marge!';
+    escena.innerHTML = `
+        <div class="espelma" id="espelma">${Joc.icona('espelma', 30)}<div class="barra"><i id="flama"></i></div></div>
+        <div class="pregunta j-paper" id="preg"></div>
+        <div class="j-opcions equiv" id="opc"></div>`;
+    $('#opc').addEventListener('click', e => {
+        const b = e.target.closest('.j-opcio');
+        if (b && !b.disabled) respon(b);
+    });
+    pregunta();
+}
+
+const DURADA_Q = 25000;
+function pregunta() {
+    const P = prepara(E.preguntes[E.q]);
+    E.P = P; E.bloc = false;
+    $('#preg').innerHTML = P.html;
+    Joc.reinicia($('#preg'), 'j-entra');
+    $('#opc').innerHTML = Joc.barreja(P.opcions).map(o => `<button class="j-opcio" data-ok="${o.ok ? 1 : 0}">${o.html}</button>`).join('');
+    hud();
+    encenEspelma();
+}
+// Espelma: temps límit de cada pregunta (es torna a encendre si s'apaga i encara hi ha marge)
+function encenEspelma() {
+    cancelAnimationFrame(E.raf);
+    E.bloc = false;
+    let fi = performance.now() + DURADA_Q, abans = performance.now();
+    const pas = ara => {
+        if (E.bloc) return;
+        if (pausat()) fi += ara - abans; // en pausa, l'espelma no es consumeix
+        abans = ara;
+        const queda = fi - ara;
+        $('#flama').style.width = Math.max(0, queda / DURADA_Q * 100) + '%';
+        $('#espelma').classList.toggle('alerta', queda < 6000);
+        if (queda <= 0 && !pausat()) return respon(null);
+        E.raf = requestAnimationFrame(pas);
+    };
+    E.raf = requestAnimationFrame(pas);
+}
+
+// Cal encertar cada pregunta: una errada o una espelma apagada és una fallada i es torna a provar
+async function respon(b) {
+    if (E.bloc || pausat()) return;
+    const opcions = [...$('#opc').children];
+    const bona = opcions.find(o => o.dataset.ok === '1');
+    if (b && b === bona) {
+        E.bloc = true;
+        cancelAnimationFrame(E.raf);
+        opcions.forEach(o => { o.disabled = true; });
+        Joc.so.be(); b.classList.add('be');
+        Joc.toast('✔ ' + E.P.explica, 'be');
+        if (E.q === 2) Joc.diu('bruixot', 'Tres de tres! Ho apuntaré... on he deixat la ploma?');
+        await Joc.espera(1700);
+        E.q++;
+        if (E.q < N_EQUIV) return pregunta();
+        hud();
+        return fiEquiv();
+    }
+    // Fallada
+    E.fallades++;
+    Joc.so.malament();
+    hud();
+    Joc.reinicia($('#hInt'), 'j-tremola');
+    if (E.fallades >= FALLADES_MAX) { opcions.forEach(o => { o.disabled = true; }); return atrapats(); }
+    if (b) {
+        b.classList.add('malament'); b.disabled = true;
+        Joc.diu('marrameu', 'Miau-gairebé! Pensa en <b>temps</b>: corxera ½, negra 1, blanca 2, rodona 4. El punt suma la meitat.', 4500);
+    } else {
+        Joc.diu('marrameu', 'S’ha apagat l’espelma! L’encenc un cop més... però és l’última oportunitat!', 3500);
+        encenEspelma();
+    }
+}
+
+async function fiEquiv() {
+    clearInterval(E.tic);
+    const s = Math.floor((Date.now() - E.inici) / 1000);
+    const est = estrelles(E.movTotal);
+    Joc.guanya({
+        repte: 6,
+        missatge: `<span class="estrelles" style="font-size:1.6rem">${'★'.repeat(est)}${'☆'.repeat(3 - est)}</span><br>` +
+            `<b>${E.movTotal}</b> moviments · equivalències amb ${E.fallades} fallades · ${Math.floor(s / 60)} min ${s % 60} s · ${E.sternuts} esternuts`,
+        resum: 'En 4/4: rodona 4 temps, blanca 2, negra 1, corxera ½, semicorxera ¼. El <b>punt</b> afegeix la meitat del valor: blanca amb punt 3, negra amb punt 1 i ½.',
+        epileg: [
+            { qui: 'bruixot', text: 'Quina memòria teniu! Les pàgines tornen a estar al seu lloc... Un moment. <i>Sniff, sniff...</i> Feu olor de <b>castanyes torrades</b>?' },
+            { qui: 'bruixot', text: 'Oh, no! M’he deixat el calder al foc i se m’ha d’omplir abans que... a... <b>ATXÍS!</b> Me’n vaig corrents a la cuina!' },
+            { qui: 'marrameu', text: 'Ha sortit volant amb l’escombra! Aquest bruixot és més despistat que dolent... Seguim-lo cap al <b>Repte VII: la Cuina del Calder</b>, miau!' },
+        ],
+    });
+}
+
+// ---------- Inici ----------
+(async () => {
+    E = { fase: 1, parelles: 0, movTotal: 0, seguides: 0, ratxa: 0, sternuts: 0, q: 0, fallades: 0, intents: INTENTS, girades: [], bloc: true, inici: Date.now() };
+    hud();
+    await Joc.dialeg([
+        { qui: 'marrameu', text: 'Shhh... som a la <b>Biblioteca del Bruixot</b>. Quants llibres de solfeig! I quanta pols de castanya, miau...' },
+        { qui: 'bruixot', text: 'Oh! Visitants! Benvinguts, sóc el Bruixot Estor... a... aaa... <b>ATXÍS!</b> ...Estornut. Perdó, és la pols.' },
+        { qui: 'bruixot', text: 'Estava endreçant els meus llibres de figures musicals i, amb l’esternut, les pàgines s’han barrejat. Ara no trobo res! On he deixat les ulleres...? Ah, les porto posades.' },
+        { qui: 'marrameu', text: `Gireu les cartes de dues en dues i trobeu les <b>parelles</b>: primer figura ↔ <b>nom</b>, després figura ↔ <b>valor</b>. Cada llibre té <b>${INTENTS} espelmes</b> i cada intent n’apaga una. Si s’apaguen totes... el bruixot us atrapa i tornem a començar!` },
+    ], { boto: 'Obrir el llibre 1' });
+    comencaRepte();
+})();
+
+// Comença (o recomença després d'un fracàs) des del llibre 1, amb cartes i preguntes noves
+function comencaRepte() {
+    clearInterval(E && E.tic);
+    cancelAnimationFrame(E && E.raf);
+    E = { fase: 1, parelles: 0, movTotal: 0, seguides: 0, ratxa: 0, sternuts: 0, q: 0, fallades: 0, intents: INTENTS, girades: [], bloc: false, inici: Date.now() };
+    rellotge();
+    muntaMemory(1);
+}
+</script>
+</body>
+</html>

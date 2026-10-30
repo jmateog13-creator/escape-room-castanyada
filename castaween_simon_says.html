@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>L'Hort de les Carbasses</title>
+<link rel="stylesheet" href="comu.css?v=2">
+<style>
+    /* ---------- Estat i fanalets ---------- */
+    .estat { text-align: center; font-weight: 800; font-size: 1.1rem; min-height: 1.6em; margin-bottom: .6rem; color: var(--or); }
+    .estat.vosaltres { color: var(--verd); }
+    .fanalets { display: flex; justify-content: center; gap: 18px; font-size: 1.3rem; margin-bottom: .4rem; transition: opacity .6s, filter .6s; }
+    .fanalets span { animation: balanceja 2.6s ease-in-out infinite alternate; display: inline-block; }
+    .fanalets span:nth-child(2n) { animation-delay: -1.3s; }
+    @keyframes balanceja { from { transform: rotate(-6deg); } to { transform: rotate(6deg); } }
+    body.fosc .fanalets { opacity: .25; filter: grayscale(1); }
+
+    /* ---------- Hort ---------- */
+    .hort {
+        display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 18px 12px 10px; border-radius: 22px;
+        background: radial-gradient(120% 70% at 50% 100%, rgba(90, 55, 25, .55), transparent 70%);
+        transition: background .6s;
+    }
+    body.fosc .hort { background: radial-gradient(120% 70% at 50% 100%, rgba(30, 18, 10, .7), rgba(5, 2, 12, .45) 80%); }
+    .carbassa {
+        position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 0 8px; border-radius: 20px;
+        transition: transform .15s, filter .15s;
+    }
+    .carbassa svg { width: 100%; max-width: 170px; display: block; overflow: visible; filter: drop-shadow(0 8px 10px rgba(0, 0, 0, .45)); transition: filter .15s; }
+    .carbassa .cos { fill: var(--c); }
+    .carbassa .cos-fosc { fill: var(--c2); }
+    .carbassa .ulls { fill: #3a1a00; }
+    .carbassa .brillo { fill: #fff; }
+    .carbassa .galta { fill: #ff6f6f; opacity: .35; }
+    .carbassa .boca-tancada { fill: none; stroke: #3a1a00; stroke-width: 4; stroke-linecap: round; }
+    .carbassa .boca-oberta { opacity: 0; transform-origin: 60px 80px; transform: scaleY(.3); transition: opacity .08s, transform .12s; }
+    .carbassa.canta .boca-oberta { opacity: 1; transform: scaleY(1); }
+    .carbassa.canta .boca-tancada { opacity: 0; }
+    .carbassa.llum { transform: translateY(-6px) scale(1.06); }
+    .carbassa.llum svg { filter: brightness(1.3) drop-shadow(0 0 22px var(--c)) drop-shadow(0 0 6px var(--c)); }
+    .carbassa:hover:not(:disabled) svg { filter: brightness(1.12) drop-shadow(0 8px 10px rgba(0, 0, 0, .45)); }
+    .carbassa:disabled { cursor: default; }
+    .carbassa.error { animation: j-tremola .4s; }
+    body.fosc .carbassa:not(.llum) svg { filter: brightness(.6) saturate(.8) drop-shadow(0 8px 10px rgba(0, 0, 0, .45)); }
+    .nom-nota { font-weight: 800; font-size: 1.15rem; line-height: 1.1; }
+    .nom-nota small { display: block; font-size: .72rem; color: var(--suau); font-weight: 700; letter-spacing: .06em; }
+    .tecla-num { position: absolute; top: 4px; left: 6px; width: 24px; height: 24px; border-radius: 8px; display: grid; place-items: center; font-size: .8rem; font-weight: 800; background: rgba(0, 0, 0, .35); border: 1px solid var(--vora); color: var(--suau); }
+    /* notetes que surten volant quan una carbassa canta */
+    .notavola { position: absolute; top: 20%; left: 50%; font-size: 1.4rem; pointer-events: none; color: var(--c); text-shadow: 0 0 8px var(--c); animation: vola 1s ease-out forwards; }
+    @keyframes vola { from { opacity: 1; transform: translate(-50%, 0) scale(.7); } to { opacity: 0; transform: translate(calc(-50% + var(--dx, 20px)), -60px) scale(1.3) rotate(15deg); } }
+
+    /* ---------- Faixa amb el pentagrama ---------- */
+    .faixa { margin-top: 1rem; padding: 6px 12px 2px; }
+    .faixa-titol { font-size: .72rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: #8a4b24; text-align: center; padding-top: 4px; }
+    #penta { max-width: 620px; margin: 0 auto; }
+
+    .accions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 1rem; }
+    .accions .j-boto { padding: .7rem 1.1rem; }
+    .amagat { display: none !important; }
+
+    /* Flaix de l'esternut */
+    .esternut { position: fixed; inset: 0; z-index: 40; pointer-events: none; background: rgba(255, 244, 214, .7); animation: flaix .9s ease-out forwards; }
+    @keyframes flaix { 0% { opacity: 0; } 15% { opacity: 1; } 100% { opacity: 0; } }
+
+    @media (max-width: 640px) {
+        .hort { grid-template-columns: repeat(2, 1fr); gap: 8px 14px; padding: 12px 6px 6px; }
+        .carbassa svg { max-width: 140px; }
+    }
+</style>
+</head>
+<body>
+<main class="j-main">
+    <section class="j-panell">
+        <h1 class="j-h1">L'Hort de les Carbasses</h1>
+        <p class="j-intro">Escolteu la melodia de les <b>carbasses cantaires</b> i repetiu-la en el mateix ordre. Tecles <b>1, 2, 3 i 4</b>.</p>
+
+        <div class="j-hud">
+            <span class="j-xip" id="xNivell">Nivell 1/8</span>
+            <span class="j-xip" id="xMode">👀 Mirar i escoltar</span>
+            <span class="j-xip" id="xVides" aria-label="Espelmes"></span>
+            <span class="j-xip amagat" id="xLlanternes">🏮 2</span>
+            <span class="j-xip" id="xRatxa">🔥 Ratxa 0</span>
+            <span class="j-xip" id="xPunts">⭐ 0</span>
+        </div>
+        <div class="j-progres"><i id="barra"></i></div>
+
+        <div class="fanalets" aria-hidden="true"><span>🏮</span><span><img class="j-icona-img" src="img/icones/lluna.png" alt="" width="30" height="30" draggable="false"></span><span>🏮</span></div>
+        <p class="estat" id="estat" aria-live="polite">Preparant l'hort…</p>
+
+        <div class="hort" id="hort" role="group" aria-label="Carbasses cantaires"></div>
+
+        <div class="faixa j-paper">
+            <div class="faixa-titol" id="faixaTitol">La vostra melodia</div>
+            <div id="penta"></div>
+        </div>
+
+        <div class="accions">
+            <button class="j-boto fantasma" id="bRepetir">🔁 Tornar a escoltar</button>
+            <button class="j-boto lila amagat" id="bLlanterna">🏮 Encendre una llanterna</button>
+        </div>
+    </section>
+</main>
+
+<script src="comu.js?v=2"></script>
+<script>
+(() => {
+    const { $, espera } = Joc;
+
+    // ---------- BANC DE JOCS DE NOTES de les quatre carbasses ----------
+    // Docent: podeu ampliar aquest banc. Cada joc té 4 posicions al pentagrama de greu a agut
+    // (p: 0 = Mi4, primera línia; -2 = Do4; 5 = Do5; 8 = Fa5) i una descripció.
+    // A cada partida se'n tria un a l'atzar; el nom i l'altura de cada nota es calculen sols.
+    const JOCS_NOTES = [
+        { p: [-2, 0, 2, 5], desc: 'l\'acord de Do major' },     // Do  Mi  Sol Do'
+        { p: [-1, 1, 3, 6], desc: 'l\'acord de Re menor' },     // Re  Fa  La  Re'
+        { p: [2, 4, 6, 9], desc: 'l\'acord de Sol major' },     // Sol Si  Re' Sol'
+        { p: [1, 3, 5, 8], desc: 'l\'acord de Fa major' },      // Fa  La  Do' Fa'
+        { p: [0, 2, 4, 7], desc: 'l\'acord de Mi menor' },      // Mi  Sol Si  Mi'
+        { p: [3, 5, 7, 10], desc: 'l\'acord de La menor' },     // La  Do' Mi' La'
+        { p: [-2, -1, 0, 1], desc: 'el començament de l\'escala de Do' }, // Do Re Mi Fa
+        { p: [2, 3, 4, 5], desc: 'el final de l\'escala de Do' },         // Sol La Si Do'
+    ];
+    const COLORS = [
+        { c: '#ff7b2e', c2: '#d4520c', tinta: '#c24a08' },
+        { c: '#ffc53d', c2: '#d9951a', tinta: '#a86f00' },
+        { c: '#8fd96b', c2: '#4f9e3a', tinta: '#3a7d26' },
+        { c: '#c49bff', c2: '#8a5fd6', tinta: '#6a3fc4' },
+    ];
+    const JOC = Joc.tria(JOCS_NOTES);
+    // Si un nom es repeteix (Do … Do'), s'indica quina és la greu i quina l'aguda
+    const NOTES = JOC.p.map((p, i) => {
+        const { nom, midi } = Joc.infoPosicio(p);
+        const repetit = JOC.p.some((q, j) => j !== i && Joc.infoPosicio(q).nom === nom);
+        const sub = repetit ? (JOC.p.findIndex(q => Joc.infoPosicio(q).nom === nom) === i ? 'greu' : 'agut') : '';
+        return { nom, sub, midi, p, ...COLORS[i] };
+    });
+    const nomNota = i => `${NOTES[i].nom}${NOTES[i].sub ? ' ' + NOTES[i].sub : ''}`;
+    const llistaNoms = NOTES.map((n, i) => `<b>${nomNota(i)}</b>`);
+    const serie = NOTES.map(n => n.nom).join(' – ');
+    const LLARGADA = [3, 4, 5, 6, 3, 4, 5, 6];         // notes de la melodia a cada nivell
+    const PAS = [760, 700, 640, 580, 640, 590, 540, 490]; // ms entre notes (cada fase és més ràpida)
+    const NIVELLS = 8, ODA = 5;                          // a partir del nivell 5, només d'oïda
+
+    const st = {
+        nivell: 1, seqA: [], seqB: [], entrada: 0, vides: 3, llanternes: 2,
+        bloquejat: true, jugant: false, punts: 0, ratxa: 0, errorsNivell: 0, oidaPresentada: false,
+    };
+    const el = { hort: $('#hort'), estat: $('#estat'), penta: $('#penta'), bRepetir: $('#bRepetir'), bLlanterna: $('#bLlanterna') };
+    const oida = () => st.nivell >= ODA;
+    const seq = () => (oida() ? st.seqB : st.seqA);
+
+    // ---------- Dibuix de les carbasses (SVG amb cara simpàtica) ----------
+    const svgCarbassa = () => `<svg viewBox="0 0 120 112" aria-hidden="true">
+        <path d="M57 22C56 12 60 5 68 5L69 11C64 12 63 16 64 22Z" fill="#6b7a2a"/>
+        <path d="M66 10C74 4 84 6 88 12C80 14 72 14 66 10Z" fill="#7fbf4a"/>
+        <ellipse class="cos-fosc" cx="60" cy="66" rx="55" ry="42"/>
+        <ellipse class="cos" cx="36" cy="66" rx="27" ry="39"/>
+        <ellipse class="cos" cx="84" cy="66" rx="27" ry="39"/>
+        <ellipse class="cos-fosc" cx="60" cy="66" rx="24" ry="43"/>
+        <ellipse class="cos" cx="60" cy="66" rx="19" ry="42"/>
+        <ellipse fill="#fff" opacity=".18" cx="34" cy="48" rx="8" ry="14" transform="rotate(20 34 48)"/>
+        <ellipse class="ulls" cx="44" cy="58" rx="6.5" ry="8.5"/><ellipse class="ulls" cx="76" cy="58" rx="6.5" ry="8.5"/>
+        <circle class="brillo" cx="46" cy="55" r="2.4"/><circle class="brillo" cx="78" cy="55" r="2.4"/>
+        <ellipse class="galta" cx="33" cy="74" rx="7" ry="4.5"/><ellipse class="galta" cx="87" cy="74" rx="7" ry="4.5"/>
+        <path class="boca-tancada" d="M48 77Q60 88 72 77"/>
+        <g class="boca-oberta"><ellipse cx="60" cy="81" rx="10" ry="11" fill="#3a1a00"/><ellipse cx="60" cy="87" rx="6" ry="4" fill="#ff7a6b"/></g>
+    </svg>`;
+    el.hort.innerHTML = NOTES.map((n, i) => `
+        <button class="carbassa" data-i="${i}" style="--c:${n.c};--c2:${n.c2}" aria-label="Carbassa ${i + 1}: ${nomNota(i)}">
+            <span class="tecla-num" aria-hidden="true">${i + 1}</span>
+            ${svgCarbassa()}
+            <span class="nom-nota">${n.nom}<small>${n.sub || '&nbsp;'}</small></span>
+        </button>`).join('');
+    const carbasses = [...el.hort.querySelectorAll('.carbassa')];
+    carbasses.forEach((b, i) => b.addEventListener('click', () => prem(i)));
+
+    // Una carbassa canta: so i, si és visible, llum + boca oberta + notetes
+    function canta(i, { visible = true, ms = 450 } = {}) {
+        Joc.so.nota(NOTES[i].midi, { dur: ms / 1000 + .35, vol: .26 });
+        if (!visible) return;
+        const b = carbasses[i];
+        b.classList.add('llum', 'canta');
+        const n = document.createElement('span');
+        n.className = 'notavola'; n.textContent = Joc.tria(['♪', '♫', '♩']);
+        n.style.setProperty('--dx', `${Math.round(Math.random() * 50 - 25)}px`);
+        b.appendChild(n);
+        setTimeout(() => n.remove(), 1000);
+        clearTimeout(b._t);
+        b._t = setTimeout(() => b.classList.remove('llum', 'canta'), ms);
+    }
+
+    // ---------- Pentagrama: la seqüència es va escrivint mentre la repetiu ----------
+    // Les notes encara no tocades es dibuixen transparents (a la línia del mig) perquè les posicions no es moguin.
+    function dibuixaPenta({ completa = false, error = null } = {}) {
+        const s = seq();
+        const notes = s.map((i, k) => {
+            const n = NOTES[i];
+            if (completa || k < st.entrada) return { p: n.p, color: n.tinta, etiqueta: n.nom };
+            if (error !== null && k === st.entrada) return { p: NOTES[error].p, color: '#d33a2c', etiqueta: '✗' };
+            return { p: 4, color: 'transparent' };
+        });
+        el.penta.innerHTML = Joc.pentagrama(notes, { amplada: 520, gap: 14 });
+    }
+
+    // ---------- HUD i botons ----------
+    function hud() {
+        $('#xNivell').innerHTML = `${Joc.icona('carbassa', 22)} Nivell ${st.nivell}/${NIVELLS}`;
+        $('#xMode').textContent = oida() ? '👂 Només d\'oïda' : '👀 Mirar i escoltar';
+        $('#xVides').innerHTML = [0, 1, 2].map(k => Joc.icona('espelma', 22, k < st.vides ? '' : 'apagada')).join('');
+        $('#xVides').setAttribute('aria-label', `${st.vides} espelmes`);
+        $('#xVides').classList.toggle('alerta', st.vides === 1);
+        $('#xLlanternes').textContent = `🏮 ${st.llanternes}`;
+        $('#xLlanternes').classList.toggle('amagat', !oida());
+        $('#xRatxa').textContent = `🔥 Ratxa ${st.ratxa}`;
+        $('#xPunts').textContent = `⭐ ${st.punts}`;
+        $('#barra').style.width = `${((st.nivell - 1) / NIVELLS) * 100}%`;
+        botons();
+    }
+    function botons() {
+        carbasses.forEach(b => b.disabled = st.bloquejat);
+        el.bRepetir.disabled = st.bloquejat;
+        el.bLlanterna.classList.toggle('amagat', !oida());
+        el.bLlanterna.disabled = st.bloquejat || st.llanternes <= 0;
+        el.bLlanterna.textContent = st.llanternes > 0 ? `🏮 Encendre una llanterna (${st.llanternes})` : '🏮 Sense llanternes';
+    }
+    const estat = (text, vosaltres = false) => { el.estat.innerHTML = text; el.estat.classList.toggle('vosaltres', vosaltres); };
+
+    // ---------- Seqüències ----------
+    function notaNova(s) {
+        let n;
+        do n = Math.floor(Math.random() * 4);
+        while (s.length >= 2 && n === s[s.length - 1] && n === s[s.length - 2]); // mai tres iguals seguides
+        return n;
+    }
+    function preparaSeq() {
+        const s = seq();
+        while (s.length < LLARGADA[st.nivell - 1]) s.push(notaNova(s));
+        s.length = LLARGADA[st.nivell - 1];
+    }
+
+    // Reprodueix la melodia del nivell. Mentre sona, no es pot tocar res.
+    async function reprodueix(visible = !oida()) {
+        st.bloquejat = true; botons();
+        st.entrada = 0; dibuixaPenta();
+        estat(visible ? '👀 Mireu i escolteu…' : '👂 Escolteu amb atenció…');
+        await espera(700);
+        const pas = PAS[st.nivell - 1];
+        for (const i of seq()) { canta(i, { visible, ms: pas * .72 }); await espera(pas); }
+        await espera(150);
+        st.bloquejat = false; botons();
+        estat('🎶 Ara vosaltres!', true);
+    }
+
+    async function iniciaNivell() {
+        st.errorsNivell = 0;
+        preparaSeq();
+        document.body.classList.toggle('fosc', oida());
+        $('#faixaTitol').textContent = `Nivell ${st.nivell} · melodia de ${seq().length} notes`;
+        hud();
+        await reprodueix();
+    }
+
+    // ---------- Jugada de l'alumne ----------
+    function prem(i) {
+        if (st.bloquejat || !st.jugant) return;
+        canta(i, { visible: true, ms: 300 });
+        if (seq()[st.entrada] === i) {
+            st.entrada++;
+            dibuixaPenta();
+            if (st.entrada === seq().length) nivellSuperat();
+        } else error(i);
+    }
+
+    async function nivellSuperat() {
+        st.bloquejat = true; botons();
+        const perfecte = st.errorsNivell === 0;
+        st.ratxa = perfecte ? st.ratxa + 1 : 0;
+        const guany = 100 * st.nivell + (perfecte ? 50 : 0) + (st.ratxa > 1 ? 25 * st.ratxa : 0);
+        st.punts += guany;
+        dibuixaPenta({ completa: true });
+        await espera(380);
+        Joc.so.be();
+        Joc.toast(`Nivell ${st.nivell} superat! +${guany}`, 'be');
+        estat(perfecte ? '✨ Perfecte!' : '✅ Ben fet!');
+        hud();
+        if (st.ratxa === 3) Joc.diu('marrameu', 'Tres nivells sense cap error! Teniu <b>orella de gat</b>, miau!');
+        else if (st.nivell === NIVELLS - 1) Joc.diu('marrameu', 'Només en queda un! Les carbasses ja es posen a ballar…');
+        else if (perfecte) Joc.diu('marrameu', Joc.tria(['Miau-ravellós!', 'Les carbasses aplaudeixen amb les fulles!', 'Quina afinació més miau-gnífica!', 'Ho heu clavat!']), 2200);
+        await espera(1300);
+        if (st.nivell === NIVELLS) return final();
+        if (st.nivell === ODA - 1) await interludiOida();
+        st.nivell++;
+        iniciaNivell();
+    }
+
+    async function error(i) {
+        st.bloquejat = true; botons();
+        st.vides--; st.ratxa = 0; st.errorsNivell++;
+        Joc.reinicia(carbasses[i], 'error');
+        dibuixaPenta({ error: i });
+        await espera(150);
+        Joc.so.malament();
+        hud();
+        if (st.vides <= 0) return senseVides();
+        if (st.vides === 1) Joc.diu('marrameu', 'Només queda <b>una espelma</b>! Respirem fondo i escoltem bé…');
+        else Joc.diu('marrameu', Joc.tria(['Ui, aquesta nota no tocava. Torneu-la a escoltar!', 'Miau, quina nota més despistada! Un altre cop.', 'S\'ha apagat una espelma… però la melodia torna a sonar!']), 2600);
+        estat('💨 S\'ha apagat una espelma!');
+        await espera(1200);
+        await reprodueix();
+    }
+
+    // Sense espelmes: el bruixot us atrapa i el repte torna a començar des del nivell 1 amb melodies noves
+    async function senseVides() {
+        estat('💨 S\'han apagat totes les espelmes!');
+        await espera(900);
+        Joc.fracas({
+            motiu: `S'han apagat les 3 espelmes al <b>nivell ${st.nivell}</b>. Les carbasses tornaran a cantar des del nivell 1, amb melodies noves.`,
+            reinicia: () => {
+                Object.assign(st, { nivell: 1, vides: 3, llanternes: 2, ratxa: 0, punts: 0, seqA: [], seqB: [] });
+                iniciaNivell();
+            },
+        });
+    }
+
+    // ---------- Meitat del joc: el bruixot esternuda i s'apaguen els llums ----------
+    async function interludiOida() {
+        if (st.oidaPresentada) {
+            Joc.diu('marrameu', 'Torna a ser fosc: ara les carbasses <b>només canten</b>. Orelles ben obertes!');
+            await espera(1200);
+            return;
+        }
+        st.oidaPresentada = true;
+        Joc.diu('bruixot', 'Aaa… aaaa… <b>AAATXÍM!</b> Ai, perdó, perdó! És aquesta pols de castanya…', 3600);
+        const f = document.createElement('div'); f.className = 'esternut'; document.body.appendChild(f);
+        setTimeout(() => f.remove(), 1000);
+        await espera(300);
+        document.body.classList.add('fosc');
+        await espera(2600);
+        await Joc.dialeg([
+            { qui: 'marrameu', text: 'Ostres! L\'esternut del bruixot ha apagat els fanalets de l\'hort. Ara les carbasses <b>només sonaran</b>: no les veureu brillar!' },
+            { qui: 'marrameu', text: `Haureu de reconèixer les notes <b>d'oïda</b>: la carbassa 1 (${llistaNoms[0]}) és la més greu i la 4 (${llistaNoms[3]}), la més aguda; ${llistaNoms[1]} i ${llistaNoms[2]} són al mig.` },
+            { qui: 'marrameu', text: 'Si us perdeu, teniu <b>2 llanternes</b>: cadascuna us deixa veure una melodia il·luminada un cop. Primer, escolteu-les una per una…' },
+        ], { boto: 'Escoltar les carbasses' });
+        // Demostració: cada carbassa canta el seu nom
+        for (let i = 0; i < 4; i++) {
+            estat(`${i + 1}: ${nomNota(i)}`);
+            canta(i, { visible: true, ms: 650 });
+            await espera(900);
+        }
+        estat(`${serie}: ${JOC.desc}!`);
+        [0, 1, 2, 3].forEach(i => canta(i, { visible: true, ms: 900 }));
+        await espera(1600);
+    }
+
+
+    // ---------- Ajudes ----------
+    el.bRepetir.addEventListener('click', () => { if (!st.bloquejat) reprodueix(); });
+    el.bLlanterna.addEventListener('click', () => {
+        if (st.bloquejat || !oida() || st.llanternes <= 0) return;
+        st.llanternes--; hud();
+        Joc.diu('marrameu', 'Llanterna encesa! Mireu bé, que només dura una melodia.', 2400);
+        reprodueix(true);
+    });
+
+    // Teclat: 1–4
+    document.addEventListener('keydown', e => {
+        if ($('.j-dialeg') || $('.j-premi.obert') || e.ctrlKey || e.metaKey || e.altKey) return;
+        const n = '1234'.indexOf(e.key);
+        if (n >= 0) { e.preventDefault(); prem(n); }
+    });
+
+    // ---------- Final ----------
+    function final() {
+        st.jugant = false;
+        $('#barra').style.width = '100%';
+        estat(`${Joc.icona('carbassa', 26)} Les carbasses canten totes juntes!`);
+        Joc.guanya({
+            repte: 4,
+            missatge: `Heu superat els <b>8 nivells</b> amb <b>${st.punts}</b> punts.`,
+            resum: `${serie}: les notes que cantaven les carbasses formen <b>${JOC.desc}</b>.`,
+            epileg: [
+                { qui: 'marrameu', text: 'Escolteu! Les quatre carbasses canten a cor i… ens diuen una cosa!' },
+                { qui: 'marrameu', text: '«Gràcies per cantar amb nosaltres! L\'esternut també ha arribat al <b>Teatre de la Banda</b>: els instruments s\'han barrejat i ningú no sap a quina família pertany cadascun.»' },
+                { qui: 'marrameu', text: 'Doncs ja ho sabeu, músics: cap al <b>Teatre de la Banda</b>, el Repte V! Jo m\'hi apunto… de miau!' },
+            ],
+        });
+    }
+
+    // ---------- Inici ----------
+    Joc.capcalera({ repte: 4, titol: 'L\'Hort de les Carbasses' });
+    hud(); dibuixaPenta();
+    Joc.dialeg([
+        { qui: 'marrameu', text: 'Miau, quin hort més gran! Aquestes són les <b>carbasses cantaires</b> que deia la Castanyera.' },
+        { qui: 'marrameu', text: `Aquesta nit cada carbassa canta una nota: ${llistaNoms.slice(0, 3).join(', ')} i ${llistaNoms[3]}. Elles canten una melodia i vosaltres l'heu de repetir en el mateix ordre, tocant-les o amb les tecles <b>1, 2, 3 i 4</b>.` },
+        { qui: 'marrameu', text: 'Hi ha <b>8 nivells</b>, cada cop més llargs i més ràpids. Teniu <b>3 espelmes</b>: cada error n\'apaga una i la melodia torna a sonar. Si s\'apaguen totes, el bruixot ens atrapa i tornem a començar des del nivell 1! Que comenci el concert miau-gnífic!' },
+    ], { boto: 'Que soni l\'hort!' }).then(() => { st.jugant = true; iniciaNivell(); });
+})();
+</script>
+</body>
+</html>

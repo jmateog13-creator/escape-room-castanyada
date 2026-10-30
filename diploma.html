@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#140b26">
+    <title>Diploma · El Misteri Musical de la Nit</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Griffy&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Pàgina independent (sense comu.css) perquè es pugui imprimir o desar en PDF */
+        :root {
+            --nit: #140b26;
+            --carbassa: #ff8a1f;
+            --carbassa-fosc: #c65408;
+            --or: #ffcf5c;
+            --verd: #3d9b5b;
+            --paper: #fbf1dc;
+            --paper-2: #f1dfb8;
+            --tinta: #3a210f;
+            --tinta-suau: #7a5a3c;
+            --f-titol: 'Griffy', 'Nunito', cursive;
+            --f-text: 'Nunito', system-ui, sans-serif;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { color-scheme: dark; }
+        body {
+            min-height: 100vh; font-family: var(--f-text); color: var(--tinta);
+            background: radial-gradient(120% 80% at 50% 0%, #3a1d63 0%, #22113d 35%, var(--nit) 75%) fixed;
+            background-color: var(--nit);
+            padding: clamp(16px, 4vw, 40px) 16px 60px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .eines { max-width: 1000px; margin: 0 auto 18px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+        .boto {
+            display: inline-flex; align-items: center; gap: .5rem; padding: .8rem 1.3rem; border-radius: 14px; border: 0; cursor: pointer;
+            font: 800 1rem var(--f-text); text-decoration: none; color: #2a1200;
+            background: linear-gradient(180deg, #ffb35c, var(--carbassa)); box-shadow: 0 4px 0 var(--carbassa-fosc);
+        }
+        .boto.fantasma { color: #fbf3ff; background: rgba(255, 255, 255, .08); box-shadow: none; border: 1px solid rgba(255, 207, 92, .3); }
+        .boto:hover { transform: translateY(-2px); }
+
+        /* ---------- Diploma ---------- */
+        .diploma {
+            position: relative; max-width: 1000px; margin: 0 auto; min-height: calc(min(1000px, 100vw - 32px) / 1.414);
+            padding: clamp(22px, 4.5%, 48px) clamp(22px, 6%, 64px);
+            background:
+                radial-gradient(ellipse at 50% 40%, var(--paper) 55%, var(--paper-2) 100%);
+            border-radius: 10px;
+            box-shadow: 0 30px 80px -20px rgba(0, 0, 0, .8), inset 0 0 60px rgba(160, 110, 50, .25);
+            display: flex; flex-direction: column; align-items: center; text-align: center;
+            overflow: hidden;
+        }
+        /* Marc doble */
+        .diploma::before, .diploma::after { content: ""; position: absolute; pointer-events: none; border-radius: 6px; }
+        .diploma::before { inset: 12px; border: 3px solid #b8752a; }
+        .diploma::after { inset: 20px; border: 1px solid rgba(184, 117, 42, .6); }
+
+        /* Il·lustració del poble, molt suau al fons */
+        .fons-poble { position: absolute; inset: 0; background: url("img/poble.jpg") center / cover; opacity: .09; filter: sepia(.6); pointer-events: none; }
+
+        .cantonada { position: absolute; width: clamp(40px, 8%, 76px); z-index: 1; filter: drop-shadow(0 3px 4px rgba(0, 0, 0, .25)); }
+        .cantonada.c1 { top: 26px; left: 26px; transform: rotate(-12deg); }
+        .cantonada.c2 { top: 26px; right: 26px; transform: rotate(10deg); }
+        .cantonada.c3 { bottom: 26px; left: 26px; transform: rotate(8deg); }
+        .cantonada.c4 { bottom: 26px; right: 26px; transform: rotate(-8deg); }
+
+        .contingut { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; flex: 1; width: 100%; justify-content: space-between; gap: clamp(6px, 1.4vw, 14px); padding-bottom: 6px; }
+        .contingut > div:not(.dades):not(.segells):not(.peu) { width: 100%; display: flex; flex-direction: column; align-items: center; }
+        .capcal { font-weight: 800; font-size: clamp(.55rem, 1.3vw, .8rem); letter-spacing: .25em; text-transform: uppercase; color: var(--tinta-suau); }
+        h1 { font-family: var(--f-titol); font-weight: 400; font-size: clamp(1.5rem, 5.4vw, 3.6rem); line-height: 1; color: var(--carbassa-fosc); text-shadow: 0 2px 0 rgba(255, 255, 255, .6); }
+        .subtitol { font-family: var(--f-titol); font-size: clamp(.9rem, 2.3vw, 1.5rem); color: #5b2d8a; }
+        .atorgat { font-size: clamp(.7rem, 1.6vw, 1rem); color: var(--tinta-suau); font-weight: 700; }
+        .equip { font-family: var(--f-titol); font-size: clamp(1rem, 2.6vw, 1.7rem); color: #5b2d8a; }
+        .noms { font-family: var(--f-titol); font-size: clamp(1.3rem, 4.2vw, 2.7rem); line-height: 1.1; color: var(--tinta); border-bottom: 2px solid rgba(184, 117, 42, .5); padding: 0 1.2rem .2rem; max-width: 92%; text-wrap: balance; }
+        .motiu { max-width: 62ch; font-size: clamp(.72rem, 1.65vw, 1.05rem); line-height: 1.5; }
+        .motiu b { color: var(--carbassa-fosc); }
+
+        .dades { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(6px, 1.4vw, 14px); }
+        .dada { min-width: clamp(64px, 12vw, 120px); padding: clamp(4px, 1vw, 8px) clamp(8px, 1.4vw, 14px); border-radius: 12px; background: rgba(255, 255, 255, .55); border: 1px solid rgba(184, 117, 42, .35); }
+        .dada b { display: block; font-family: var(--f-titol); font-weight: 400; font-size: clamp(1rem, 2.6vw, 1.7rem); color: var(--tinta); }
+        .dada span { font-size: clamp(.55rem, 1.2vw, .75rem); font-weight: 800; color: var(--tinta-suau); text-transform: uppercase; letter-spacing: .08em; }
+
+        .segells { display: flex; gap: clamp(3px, .8vw, 8px); }
+        .mini {
+            width: clamp(20px, 3.6vw, 34px); aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center;
+            font-family: var(--f-titol); font-size: clamp(.55rem, 1.3vw, .85rem);
+            background: rgba(0, 0, 0, .07); color: rgba(58, 33, 15, .4); border: 1px dashed rgba(58, 33, 15, .3);
+        }
+        .mini.si { background: radial-gradient(circle at 35% 30%, #ffd98a, var(--carbassa) 60%, var(--carbassa-fosc)); color: #4a1a00; border: 0; box-shadow: 0 2px 4px rgba(0, 0, 0, .25); }
+
+        .peu { display: grid; grid-template-columns: 1fr auto 1fr; align-items: end; width: 100%; gap: 10px; }
+        .signatures { display: flex; gap: clamp(8px, 2vw, 22px); }
+        .signatures.dreta { justify-content: flex-end; }
+        .signa { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+        .signa img { width: clamp(30px, 6vw, 58px); aspect-ratio: 1; border-radius: 50%; object-fit: cover; border: 2px solid #b8752a; }
+        .signa i { font-family: var(--f-titol); font-style: normal; font-size: clamp(.7rem, 1.6vw, 1.05rem); color: #5b2d8a; transform: rotate(-4deg); }
+        .signa span { font-size: clamp(.5rem, 1.1vw, .7rem); font-weight: 800; color: var(--tinta-suau); border-top: 1px solid rgba(58, 33, 15, .4); padding-top: 2px; }
+        .segell-cera { position: relative; width: clamp(64px, 12vw, 120px); aspect-ratio: 1; display: grid; place-items: center; }
+        .segell-cera img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0, 0, 0, .35)); }
+        .segell-cera b { position: relative; font-family: var(--f-titol); font-weight: 400; font-size: clamp(1.1rem, 3vw, 2rem); color: #fff4d6; text-shadow: 0 2px 0 #6a1d00; }
+        .data { font-size: clamp(.55rem, 1.2vw, .78rem); color: var(--tinta-suau); font-weight: 700; margin-top: 3px; }
+
+        .avis { max-width: 1000px; margin: 14px auto 0; text-align: center; color: #c7b8e0; font-size: .9rem; }
+
+        @media (max-width: 640px) {
+            .diploma { min-height: 120vw; }
+            .peu { grid-template-columns: 1fr; justify-items: center; }
+            .signatures.dreta { justify-content: center; }
+        }
+
+        /* ---------- Impressió: només el diploma, en A4 apaisat ---------- */
+        @page { size: A4 landscape; margin: 8mm; }
+        @media print {
+            html { color-scheme: light; }
+            body { background: #fff; padding: 0; }
+            .eines, .avis { display: none !important; }
+            .diploma { max-width: none; width: 100%; min-height: 190mm; box-shadow: none; animation: none; border-radius: 0; }
+            * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="eines">
+        <button class="boto" id="imprimir">🖨️ Imprimir o desar en PDF</button>
+        <a class="boto fantasma" href="index.html">← Tornar al mapa</a>
+    </div>
+
+    <article class="diploma" id="diploma" aria-label="Diploma">
+        <div class="fons-poble" aria-hidden="true"></div>
+        <img class="cantonada c1" src="img/icones/carbassa.png" alt="">
+        <img class="cantonada c2" src="img/icones/ratpenat.png" alt="">
+
+        <div class="contingut">
+            <p class="capcal">AulaTech · Escape Room de Música · Castanyada &amp; Halloween</p>
+            <div>
+                <h1 id="titol">Diploma d'Escapistes de la Nit</h1>
+                <p class="subtitol" id="subtitol">El Misteri Musical de la Nit</p>
+            </div>
+            <div>
+                <p class="atorgat">Atorgat a</p>
+                <p class="equip" id="equip"></p>
+                <p class="noms" id="noms">L'equip</p>
+            </div>
+            <p class="motiu" id="motiu"></p>
+            <div class="dades" id="dades"></div>
+            <div class="segells" id="segells" aria-label="Reptes superats"></div>
+            <div class="peu">
+                <div class="signatures">
+                    <div class="signa"><img src="img/bruixot.png" alt=""><i>Atxim!</i><span>El Bruixot Estornut</span></div>
+                    <div class="signa"><img src="img/castanyera.png" alt=""><i>Calentetes!</i><span>La Castanyera</span></div>
+                </div>
+                <div>
+                    <div class="segell-cera"><img src="img/segell.png" alt=""><b id="segell-cera">✓</b></div>
+                    <p class="data" id="data"></p>
+                </div>
+                <div class="signatures dreta">
+                    <div class="signa"><img src="img/marrameu.png" alt=""><i>Miau! 🐾</i><span>Marrameu, guia del poble</span></div>
+                </div>
+            </div>
+        </div>
+    </article>
+
+    <p class="avis" id="avis"></p>
+
+    <script>
+        const CLAU = 'aulatech-escape-halloween-1';
+        const ROMANS = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'];
+        const LLOCS = ['Torre del Rellotge', 'Plaça del Marrameu', 'Parada de la Castanyera', 'Hort de les Carbasses', 'Teatre de la Banda', 'Biblioteca del Bruixot', 'Cuina del Calder', 'Porta del Bruixot'];
+        let e = {};
+        try { e = JSON.parse(localStorage.getItem(CLAU)) || {}; } catch (err) {}
+        const $ = id => document.getElementById(id);
+        const mmss = ms => { const s = Math.max(0, Math.round(ms / 1000)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+        const text = v => String(v).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+        const noms = (e.noms || []).filter(Boolean);
+        const llistaNoms = noms.length ? (noms.length === 1 ? noms[0] : noms.slice(0, -1).join(', ') + ' i ' + noms[noms.length - 1]) : 'L\'equip';
+        const superats = (e.superats || []).map(Boolean);
+        const nSuperats = superats.filter(Boolean).length;
+        const pistes = Object.values(e.pistes || {}).reduce((a, b) => a + b, 0);
+        const guanyat = !!e.guanyat;
+        const durada = e.durada || 50 * 60000;
+        const tempsEmprat = guanyat ? e.guanyat - e.inici : (e.fiTemps ? durada : (e.inici ? Date.now() - e.inici : 0));
+        const segellsBons = guanyat ? 8 : (e.segellsFinal ?? 0);
+
+        // ---- Títol i text segons el resultat ----
+        if (guanyat) {
+            const llegenda = pistes === 0 && (e.intents || 1) <= 1;
+            $('titol').textContent = llegenda ? 'Diploma de Llegendes de la Castanyada' : 'Diploma d\'Escapistes de la Nit';
+            $('motiu').innerHTML = `per haver recuperat la <b>Melodia de la Nit</b>: heu superat els <b>8 reptes</b> del poble, heu obert el bagul encantat i heu salvat la Castanyada i Halloween. Domineu el <b>ritme</b>, el <b>nom de les notes</b> i els <b>instruments</b>!`;
+            $('segell-cera').textContent = '✓';
+        } else {
+            $('titol').textContent = 'Diploma de Valentia Musical';
+            $('motiu').innerHTML = `per haver plantat cara al Bruixot Estornut i haver superat <b>${nSuperats} de 8 reptes</b>. La Melodia de la Nit encara és a la torre del bruixot… però l'any que ve no se us escaparà!`;
+            $('segell-cera').textContent = nSuperats;
+        }
+        if (e.equip) $('equip').textContent = e.equip;
+        $('noms').textContent = llistaNoms;
+
+        // ---- Dades ----
+        const dades = [
+            [guanyat ? mmss(tempsEmprat) : (e.fiTemps ? '50:00' : mmss(tempsEmprat)), guanyat ? 'Temps' : 'Temps jugat'],
+            [`${nSuperats}/8`, 'Reptes'],
+            [`${segellsBons}/8`, 'Segells'],
+            [pistes, pistes === 1 ? 'Pista' : 'Pistes'],
+        ];
+        $('dades').innerHTML = dades.map(([v, t]) => `<div class="dada"><b>${text(v)}</b><span>${t}</span></div>`).join('');
+        $('segells').innerHTML = ROMANS.map((r, i) => `<span class="mini ${superats[i] ? 'si' : ''}" title="${LLOCS[i]}">${r}</span>`).join('');
+
+        // ---- Data en català ----
+        const MESOS = ['de gener', 'de febrer', 'de març', 'd\'abril', 'de maig', 'de juny', 'de juliol', 'd\'agost', 'de setembre', 'd\'octubre', 'de novembre', 'de desembre'];
+        const d = new Date(e.guanyat || e.fiTemps || Date.now());
+        $('data').textContent = `${d.getDate()} ${MESOS[d.getMonth()]} de ${d.getFullYear()}`;
+
+        if (!e.inici) $('avis').textContent = 'Aquest és un exemple: el diploma de veritat surt quan un equip acaba la partida.';
+        $('imprimir').addEventListener('click', () => window.print());
+        document.title = `Diploma · ${llistaNoms}`;
+    </script>
+</body>
+</html>

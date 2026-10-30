@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>La Plaça del Marrameu · Escape Room de la Nit</title>
+<link rel="stylesheet" href="comu.css?v=2">
+<style>
+/* ---------- Repte II: La Plaça del Marrameu ---------- */
+.placa .j-intro { margin-bottom: 1rem; }
+[hidden] { display: none !important; }
+
+/* Escenari: pulsos, eco i compte enrere */
+.escenari { display: flex; align-items: center; justify-content: center; gap: 18px; margin: .2rem 0 1rem; min-height: 86px; }
+.pulsos { display: flex; gap: 8px; }
+.pulsos i { width: 16px; height: 16px; border-radius: 50%; background: var(--pedra-2); border: 1px solid var(--vora); transition: background .1s, transform .1s, box-shadow .1s; }
+.pulsos i.on { background: var(--or); transform: scale(1.3); box-shadow: 0 0 12px var(--or); }
+.pulsos i.compte { background: #9a72ef; transform: scale(1.3); box-shadow: 0 0 12px var(--violeta); }
+.eco { position: relative; width: 76px; height: 76px; display: grid; place-items: center; font-size: 2.7rem; border-radius: 50%; background: radial-gradient(circle, rgba(255, 207, 92, .15), transparent 70%); }
+.eco::after { content: ''; position: absolute; inset: 0; border-radius: 50%; border: 3px solid var(--or); opacity: 0; }
+.eco.pica { animation: j-pop .25s; }
+.eco.pica::after { animation: ona .6s ease-out; }
+@keyframes ona { from { transform: scale(.6); opacity: .9; } to { transform: scale(1.8); opacity: 0; } }
+.compte-num { font-family: var(--f-titol); font-size: 2.4rem; color: #b58cff; width: 1.4em; text-align: center; }
+.estat { text-align: center; color: var(--suau); font-weight: 700; min-height: 1.5em; margin-bottom: .9rem; }
+.estat b { color: var(--text); }
+.tipus-xip.variant { border-color: var(--carbassa); color: var(--or); }
+.vides { gap: 2px; }
+.vides .cau { animation: j-tremola .5s; }
+.eco img { width: 54px; height: 54px; }
+
+/* Partitures */
+.compas { display: inline-flex; flex-direction: column; font-family: Georgia, 'Times New Roman', serif; font-weight: 900; line-height: .82; font-size: 1.35rem; margin-right: .35rem; }
+.barra-final { display: inline-block; width: 9px; height: 2.4rem; margin-left: .45rem; border-left: 2px solid var(--tinta); border-right: 5px solid var(--tinta); align-self: center; }
+.j-ritme [data-i] { display: inline-block; transition: transform .1s, color .1s; }
+.j-ritme [data-i].sona { color: #d9600b; transform: translateY(-5px) scale(1.15); }
+.lletra { position: absolute; top: 6px; left: 10px; font-weight: 900; color: #7a3300; font-size: .85rem; letter-spacing: .05em; }
+
+/* Zona de joc: esperant mentre sona l'eco */
+.zona { transition: opacity .2s; }
+.zona.esperant { opacity: .72; pointer-events: none; }
+
+/* Variant 1: Escolta i tria (3 partitures) */
+.opcions-ritme { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
+.opcio-ritme { position: relative; display: flex; align-items: center; justify-content: center; min-height: 112px; padding: 1.4rem .7rem .8rem; border: 3px solid transparent; transition: transform .12s, border-color .2s, box-shadow .2s; color: var(--tinta); }
+.opcio-ritme:hover:not(:disabled) { transform: translateY(-3px); border-color: var(--carbassa); }
+.opcio-ritme:disabled { cursor: default; }
+.be-marc { border-color: var(--verd) !important; box-shadow: 0 0 0 3px rgba(111, 220, 140, .45), 0 10px 30px -10px rgba(0, 0, 0, .7); }
+.mal-marc { border-color: var(--vermell) !important; animation: j-tremola .4s; opacity: .85; }
+
+/* Partitura gran (Troba l'error i Completa el compàs) */
+.partitura-gran { position: relative; display: flex; justify-content: center; align-items: center; gap: .3em; padding: 1.6rem .8rem 1rem; border: 3px solid transparent; overflow: hidden; color: var(--tinta); }
+.partitura-gran .j-ritme { flex-shrink: 0; }
+.troba .j-ritme [data-i] { cursor: pointer; padding: .06em .1em; border-radius: 10px; border: 2px solid transparent; }
+.troba .j-ritme [data-i]:hover, .troba .j-ritme [data-i]:focus-visible { border-color: var(--carbassa); outline: none; }
+.troba .j-ritme [data-i].bona { border-color: var(--verd); background: rgba(47, 154, 82, .18); }
+.troba .j-ritme [data-i].mal { border-color: var(--vermell); background: rgba(214, 69, 47, .16); animation: j-tremola .4s; }
+.forat { display: inline-grid; place-items: center; min-width: calc(var(--d) * .95em); height: 1.25em; padding: 0 .15em; border: 3px dashed #b54d00; border-radius: 12px; font-family: var(--f-titol); color: #b54d00; flex-shrink: 0; }
+.forat.omplert { border-style: solid; border-color: var(--verd); background: rgba(47, 154, 82, .14); }
+.opcions-cel { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
+.opcio-cel { position: relative; display: flex; align-items: center; justify-content: center; min-height: 92px; padding: 1.3rem .4rem .6rem; border: 3px solid transparent; color: var(--tinta); transition: transform .12s, border-color .2s; }
+.opcio-cel:hover:not(:disabled) { transform: translateY(-3px); border-color: var(--carbassa); }
+.opcio-cel:disabled { cursor: default; }
+.solucio { margin-top: 12px; }
+
+.accions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 1.1rem; }
+
+@media (max-width: 560px) {
+    .placa .j-intro { font-size: .92rem; margin-bottom: .7rem; }
+    .escenari { gap: 12px; min-height: 70px; }
+    .eco { width: 62px; height: 62px; }
+    .eco img { width: 44px; height: 44px; }
+    .opcio-ritme { min-height: 96px; }
+    .opcions-cel { gap: 6px; }
+    .opcio-cel { min-height: 80px; }
+}
+</style>
+</head>
+<body>
+<main class="j-main">
+    <section class="j-panell placa">
+        <h1 class="j-h1">La Plaça del Marrameu</h1>
+        <p class="j-intro">Escolta cada <b>eco</b> i resol el repte de la partitura. Com menys cops l'hagis d'escoltar, més <b>castanyes</b> guanyes!</p>
+
+        <div class="j-hud">
+            <span class="j-xip tipus-xip" id="xTipus">Escolta i tria</span>
+            <span class="j-xip" id="xRonda">Eco 1/9</span>
+            <span class="j-xip" id="xCast">0</span>
+            <span class="j-xip" id="xRatxa">🔥 ratxa 0</span>
+            <span class="j-xip vides" id="xVides" aria-label="Vides: 3 de 3"></span>
+        </div>
+        <div class="j-progres" aria-hidden="true"><i id="barra"></i></div>
+
+        <div class="escenari" aria-hidden="true">
+            <div class="pulsos" id="pulsos"><i></i><i></i><i></i><i></i></div>
+            <div class="eco" id="eco"></div>
+            <div class="compte-num" id="compteNum"></div>
+        </div>
+        <p class="estat" id="estat" aria-live="polite"></p>
+
+        <div class="zona" id="zona"></div>
+        <div class="accions">
+            <button class="j-boto lila" id="bEscolta" type="button">🔁 Torna-ho a escoltar (2)</button>
+            <button class="j-boto verd" id="bSeguent" type="button" hidden>Següent eco →</button>
+        </div>
+    </section>
+</main>
+
+<script src="comu.js?v=2"></script>
+<script>
+(() => {
+    const { $, so, FIGURES } = Joc;
+    const TEMPO = 88;    // tempo dels ecos
+    const ESCOLTES = 2;  // repeticions permeses per ronda
+    const RONDES = 9;
+    const VIDES = 3;     // vides per a tota la partida
+
+    // =====================================================================
+    // BANC DE RITMES — Docent: aquí pots ampliar el contingut.
+    // Cada ritme es GENERA a l'atzar combinant aquestes cel·les (cada cel·la dura temps sencers).
+    // Repetir una cel·la la fa sortir més sovint. Les opcions incorrectes, l'error de "Troba l'error"
+    // i els fragments de "Completa el compàs" es generen a partir del ritme correcte.
+    // =====================================================================
+    const CELLES = {
+        1: [['negra'], ['negra'], ['negra'], ['blanca'], ['blanca'], ['blancaP'], ['rodona']],
+        2: [['negra'], ['negra'], ['blanca'], ['blancaP'], ['corxera', 'corxera'], ['corxera', 'corxera']],
+        3: [['negra'], ['corxera', 'corxera'], ['negraP', 'corxera'], ['negraP', 'corxera'], ['sNegra'], ['sNegra'],
+            ['sCorxera', 'corxera'], ['blanca'], ['sBlanca']],
+    };
+    const TIPUS = { tria: 'Escolta i tria', error: "Troba l'error", completa: 'Completa el compàs' };
+
+    // Pla de la partida: 3 rondes per nivell; la 3a de cada nivell és una variant triada a l'atzar
+    const silenci = r => r.some(k => FIGURES[k].silenci);
+    const corxeres = r => r.filter(k => k === 'corxera').length;
+    // (es torna a generar cada vegada que comença la partida)
+    const planifica = () => { const variants = Joc.barreja(['error', 'completa', Joc.tria(['error', 'completa'])]); return [
+        { nivell: 1, tipus: 'tria', cal: r => true },
+        { nivell: 1, tipus: 'tria', cal: r => r.includes('blanca') || r.includes('blancaP') },
+        { nivell: 1, tipus: variants[0], cal: r => true },
+        { nivell: 2, tipus: 'tria', cal: r => corxeres(r) >= 2 },
+        { nivell: 2, tipus: 'tria', cal: r => corxeres(r) >= 4 },
+        { nivell: 2, tipus: variants[1], cal: r => corxeres(r) >= 2 },
+        { nivell: 3, tipus: 'tria', cal: r => r.includes('negraP') },
+        { nivell: 3, tipus: 'tria', cal: silenci },
+        { nivell: 3, tipus: variants[2], cal: r => r.includes('negraP') || silenci(r) },
+    ]; };
+    let PLA = planifica();
+
+    // ---------- Utilitats de ritme ----------
+    const durada = figs => figs.reduce((s, k) => s + FIGURES[k].valor, 0);
+    const onsets = figs => { let t = 0; const r = []; figs.forEach(k => { if (!FIGURES[k].silenci) r.push(t); t += FIGURES[k].valor; }); return r; };
+    const firma = figs => onsets(figs).join(',');               // com SONA (amb percussió)
+    const quatre = figs => Math.abs(durada(figs) - 4) < 1e-9;
+    const difOnsets = (a, b) => { const oa = onsets(a), ob = onsets(b); return oa.filter(x => !ob.includes(x)).length + ob.filter(x => !oa.includes(x)).length; };
+    const unics = pool => [...new Map(pool.map(c => [c.join(' '), c])).values()];
+
+    // Omple `dur` temps amb cel·les a l'atzar
+    function omple(dur, pool) {
+        const r = []; let resta = dur;
+        for (let g = 0; resta > 1e-9 && g < 60; g++) {
+            const cand = pool.filter(c => durada(c) <= resta + 1e-9);
+            const c = Joc.tria(cand); r.push(c); resta -= durada(c);
+        }
+        return Math.abs(resta) < 1e-9 ? r : null;
+    }
+
+    // Totes les maneres d'omplir `dur` temps amb les cel·les del banc
+    function maneres(dur, pool) {
+        const cel = unics(pool), res = [];
+        const rec = (resta, acc) => {
+            if (res.length >= 300) return;
+            if (Math.abs(resta) < 1e-9) { res.push(acc.slice()); return; }
+            cel.forEach(c => { const d = durada(c); if (d <= resta + 1e-9) { acc.push(c); rec(resta - d, acc); acc.pop(); } });
+        };
+        rec(dur, []);
+        return res;
+    }
+
+    // Genera el ritme correcte d'una ronda (llista de cel·les)
+    function generaRitme(def, usats) {
+        for (let intent = 0; intent < 600; intent++) {
+            const cels = omple(4, CELLES[def.nivell]);
+            if (!cels) continue;
+            const f = cels.flat();
+            if (!quatre(f) || onsets(f).length < 2 || !def.cal(f)) continue;
+            if (intent < 400 && usats.has(f.join(' '))) continue; // millor no repetir ritmes a la partida
+            return cels;
+        }
+        return [['negra'], ['negra'], ['blanca']];
+    }
+
+    // Canvia 1–2 figures: intercanvia dues cel·les veïnes o en substitueix una (o dues) per altres de la mateixa durada
+    function muta(cels, pool) {
+        const c = cels.slice();
+        if (c.length >= 2 && Math.random() < .3) {
+            const i = Math.floor(Math.random() * (c.length - 1));
+            [c[i], c[i + 1]] = [c[i + 1], c[i]];
+            return c;
+        }
+        const i = Math.floor(Math.random() * c.length);
+        const j = Math.min(c.length - 1, i + (Math.random() < .35 ? 1 : 0));
+        const nou = omple(durada(c.slice(i, j + 1).flat()), pool);
+        if (nou) c.splice(i, j - i + 1, ...nou);
+        return c;
+    }
+
+    // Dues opcions incorrectes: sonen diferent de la correcta (i entre elles) però s'hi assemblen
+    function distractors(correcte, nivell) {
+        const pool = CELLES[nivell], fc = correcte.flat();
+        const vistes = new Set([firma(fc)]);
+        const res = [];
+        for (let intent = 0; intent < 800 && res.length < 2; intent++) {
+            let d = muta(correcte, pool);
+            if (Math.random() < .4) d = muta(d, pool);
+            const fd = d.flat();
+            if (!quatre(fd) || !onsets(fd).length) continue;
+            const fi = firma(fd), dif = difOnsets(fc, fd);
+            if (vistes.has(fi) || dif < 1 || dif > 3) continue; // plausible: com a molt 3 cops de diferència
+            vistes.add(fi); res.push(d);
+        }
+        return res;
+    }
+
+    // Fragments alternatius per al tros i..j del ritme (mateixa durada, sonen diferent)
+    function alternatives(cels, i, j, pool) {
+        const dur = durada(cels.slice(i, j + 1).flat());
+        const fc = cels.flat();
+        const vistes = new Set([firma(fc)]);
+        const res = [];
+        Joc.barreja(maneres(dur, pool)).forEach(v => {
+            const nou = [...cels.slice(0, i), ...v, ...cels.slice(j + 1)].flat();
+            const f = firma(nou);
+            if (vistes.has(f) || v.flat().length > 4 || !onsets(nou).length || difOnsets(fc, nou) > 3) return;
+            vistes.add(f); res.push(v);
+        });
+        return res;
+    }
+
+    // Trossos candidats (1 o 2 cel·les seguides, màxim 3 temps); primer els d'una sola cel·la
+    function trossos(cels) {
+        const t = [];
+        cels.forEach((_, i) => [i, i + 1].forEach(j => {
+            if (j < cels.length && durada(cels.slice(i, j + 1).flat()) <= 3) t.push([i, j]);
+        }));
+        return Joc.barreja(t).sort((a, b) => (a[1] - a[0]) - (b[1] - b[0]));
+    }
+
+    // ---------- Generadors de cada tipus de ronda ----------
+    function rondaTria(def, usats) {
+        for (let k = 0; k < 30; k++) {
+            const cor = generaRitme(def, usats), ops = distractors(cor, def.nivell);
+            if (ops.length < 2) continue;
+            const totes = Joc.barreja([cor, ...ops]);
+            return { tipus: 'tria', cels: cor, opcions: totes.map(c => c.flat()), correcte: totes.indexOf(cor) };
+        }
+        return null;
+    }
+    function rondaError(def, usats) {
+        const pool = CELLES[def.nivell];
+        for (let k = 0; k < 60; k++) {
+            const cor = generaRitme(def, usats);
+            for (const [i, j] of trossos(cor)) {
+                const alts = alternatives(cor, i, j, pool);
+                if (!alts.length) continue;
+                const v = Joc.tria(alts);
+                const inici = cor.slice(0, i).flat().length;
+                return { tipus: 'error', cels: cor, escrit: [...cor.slice(0, i), ...v, ...cor.slice(j + 1)].flat(), inici, fi: inici + v.flat().length };
+            }
+        }
+        return null;
+    }
+    function rondaCompleta(def, usats) {
+        const pool = CELLES[def.nivell];
+        for (let k = 0; k < 60; k++) {
+            const cor = generaRitme(def, usats);
+            for (const [i, j] of trossos(cor)) {
+                const alts = alternatives(cor, i, j, pool);
+                if (alts.length < 2) continue;
+                const bo = cor.slice(i, j + 1);
+                const totes = Joc.barreja([bo, alts[0], alts[1]]);
+                return { tipus: 'completa', cels: cor, i, j, opcions: totes.map(c => c.flat()), correcte: totes.indexOf(bo) };
+            }
+        }
+        return null;
+    }
+
+    // HTML d'una partitura d'un compàs (4/4 + figures + doble barra final)
+    const midaDe = n => (n >= 7 ? 1.75 : n >= 5 ? 2.05 : 2.35);
+    const compas = '<span class="compas" aria-hidden="true"><span>4</span><span>4</span></span>';
+    const barra = '<span class="barra-final" aria-hidden="true"></span>';
+    const partituraHTML = (figs, mida) => compas + Joc.ritmeHTML(figs, { mida: mida || midaDe(figs.length) }) + barra;
+    const nomRitme = figs => figs.map(k => FIGURES[k].nom.toLowerCase()).join(', ');
+
+    // ---------- Elements ----------
+    const el = {
+        tipus: $('#xTipus'), ronda: $('#xRonda'), cast: $('#xCast'), ratxa: $('#xRatxa'), barra: $('#barra'),
+        pulsos: [...$('#pulsos').children], eco: $('#eco'), compte: $('#compteNum'), estat: $('#estat'),
+        zona: $('#zona'), bEscolta: $('#bEscolta'), bSeguent: $('#bSeguent'), vides: $('#xVides'),
+    };
+
+    // ---------- Reproducció amb visuals ----------
+    const programa = (fn, s) => setTimeout(fn, Math.max(0, s * 1000));
+    function pols(i, compte) {
+        const p = el.pulsos[i]; if (!p) return;
+        p.classList.add(compte ? 'compte' : 'on');
+        setTimeout(() => p.classList.remove('on', 'compte'), 140);
+    }
+    const ecoPica = () => Joc.reinicia(el.eco, 'pica');
+
+    /**
+     * Toca un ritme amb Joc.so.ritme i hi afegeix: compte enrere visual, pulsos i una nota suau
+     * sostinguda (perquè una blanca "duri" més que una negra). Retorna una promesa.
+     */
+    function toca(figs, { compte = 4, enCop } = {}) {
+        const negra = 60 / TEMPO;
+        const a = Joc.audio();
+        if (!a) return Joc.espera(500);
+        const ara = a.currentTime;
+        const t0 = ara + .15 + compte * negra; // mateix càlcul que fa Joc.so.ritme
+        let t = t0;
+        figs.forEach(k => { const f = FIGURES[k]; if (!f.silenci) so.nota(67, { t, dur: f.valor * negra * .92, vol: .07 }); t += f.valor * negra; });
+        for (let i = 0; i < compte; i++) programa(() => { el.compte.textContent = i + 1; pols(i, true); }, t0 - (compte - i) * negra - ara);
+        programa(() => { el.compte.textContent = ''; }, t0 - ara);
+        for (let b = 0; b < 4; b++) programa(() => pols(b, false), t0 + b * negra - ara);
+        return Promise.resolve(so.ritme(figs, { tempo: TEMPO, compte, instrument: 'fusta', metronom: true, enCop }));
+    }
+
+    function ressalta(cont, i) {
+        cont.querySelectorAll('[data-i]').forEach(s => s.classList.toggle('sona', +s.dataset.i === i));
+    }
+
+    // =====================================================================
+    // JOC
+    // =====================================================================
+    const P = { ronda: 0, castanyes: 0, ratxa: 0, millor: 0, errors: 0, vides: VIDES, escoltes: 0, ocupat: false, respost: false, usats: new Set(), R: null, vistos: {} };
+    // Icones il·lustrades: carbassa (eco), castanyes (comptador) i espelmes (vides)
+    el.eco.innerHTML = Joc.icona('carbassa', 54);
+    el.vides.innerHTML = Array.from({ length: VIDES }, () => Joc.icona('espelma', 22)).join('');
+    const cors = [...el.vides.children];
+
+    function hud() {
+        const tipus = P.R ? P.R.tipus : 'tria';
+        el.tipus.textContent = (tipus === 'tria' ? '' : '⚡ ') + TIPUS[tipus];
+        el.tipus.classList.toggle('variant', tipus !== 'tria');
+        el.ronda.textContent = `Eco ${Math.min(P.ronda + 1, RONDES)}/${RONDES}`;
+        el.cast.innerHTML = `${Joc.icona('castanya', 20)} ${P.castanyes}`;
+        el.ratxa.textContent = `🔥 ratxa ${P.ratxa}`;
+        el.barra.style.width = (P.ronda / RONDES * 100) + '%';
+        cors.forEach((c, i) => c.classList.toggle('apagada', i >= P.vides));
+        el.vides.setAttribute('aria-label', `Vides: ${P.vides} de ${VIDES}`);
+        el.vides.classList.toggle('alerta', P.vides === 1);
+    }
+
+    function novaRonda() {
+        const def = PLA[P.ronda];
+        const gen = { tria: rondaTria, error: rondaError, completa: rondaCompleta };
+        // Si una variant no es pot generar, es fa una ronda normal
+        P.R = gen[def.tipus](def, P.usats) || rondaTria(def, P.usats) || rondaTria({ ...def, cal: () => true }, new Set());
+        P.so = P.R.cels.flat();
+        P.usats.add(P.so.join(' '));
+        P.escoltes = 0; P.respost = false;
+        el.zona.className = 'zona ' + P.R.tipus;
+        ({ tria: pintaTria, error: pintaError, completa: pintaCompleta })[P.R.tipus]();
+        el.bSeguent.hidden = true;
+        el.bEscolta.hidden = false;
+        hud();
+        if (P.R.tipus !== 'tria' && !P.vistos[P.R.tipus]) {
+            P.vistos[P.R.tipus] = true;
+            Joc.diu('marrameu', P.R.tipus === 'error'
+                ? 'Compte! Aquest eco fa <b>trampes</b>: la partitura té <b>una figura</b> que no sona així. Troba-la!'
+                : 'A aquest compàs li falta <b>un tros</b>! Escolta l\'eco i tria el fragment que hi encaixa.', 5000);
+        }
+        escolta(false);
+    }
+
+    // --- Escolta i tria: tres partitures ---
+    function pintaTria() {
+        const R = P.R;
+        el.zona.innerHTML = `<div class="opcions-ritme">${R.opcions.map((f, i) =>
+            `<button class="j-paper opcio-ritme j-entra" type="button" data-k="${i}" aria-label="Opció ${'ABC'[i]}: ${nomRitme(f)}">
+                <span class="lletra">${'ABC'[i]}</span>${partituraHTML(f)}</button>`).join('')}</div>`;
+        el.zona.querySelectorAll('.opcio-ritme').forEach(b => b.addEventListener('click', () => triaOpcio(+b.dataset.k)));
+    }
+
+    // --- Troba l'error: una partitura amb una figura canviada ---
+    function pintaError() {
+        const R = P.R;
+        el.zona.innerHTML = `<div class="j-paper partitura-gran j-entra"><span class="lletra">PARTITURA DE L'ECO</span>${partituraHTML(R.escrit, midaDe(R.escrit.length) + .3)}</div>`;
+        el.zona.querySelectorAll('.j-ritme [data-i]').forEach(s => {
+            s.tabIndex = 0;
+            s.setAttribute('role', 'button');
+            s.setAttribute('aria-label', `${FIGURES[R.escrit[+s.dataset.i]].nom} (figura ${+s.dataset.i + 1})`);
+            s.addEventListener('click', () => trobaError(+s.dataset.i));
+            s.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); trobaError(+s.dataset.i); } });
+        });
+    }
+
+    // --- Completa el compàs: falta un tros i cal triar-lo ---
+    function pintaCompleta() {
+        const R = P.R;
+        const abans = R.cels.slice(0, R.i).flat(), despres = R.cels.slice(R.j + 1).flat();
+        const mida = midaDe(P.so.length) + .2;
+        const dur = durada(R.cels.slice(R.i, R.j + 1).flat());
+        el.zona.innerHTML = `
+            <div class="j-paper partitura-gran j-entra" style="font-size:${mida}rem">
+                <span class="lletra" style="font-size:.85rem">COMPLETA EL COMPÀS</span>
+                <span style="font-size:1rem;display:contents">${compas}</span>
+                ${abans.length ? Joc.ritmeHTML(abans, { mida }) : ''}
+                <span class="forat" style="--d:${dur}" aria-label="Fragment que falta">?</span>
+                ${despres.length ? Joc.ritmeHTML(despres, { mida }) : ''}
+                ${barra}
+            </div>
+            <div class="opcions-cel">${R.opcions.map((f, k) =>
+                `<button class="j-paper opcio-cel j-entra" type="button" data-k="${k}" aria-label="Fragment ${'ABC'[k]}: ${nomRitme(f)}">
+                    <span class="lletra">${'ABC'[k]}</span>${Joc.ritmeHTML(f, { mida: f.length >= 4 ? 1.7 : 2.1 })}</button>`).join('')}</div>`;
+        el.zona.querySelectorAll('.opcio-cel').forEach(b => b.addEventListener('click', () => triaOpcio(+b.dataset.k)));
+    }
+
+    function botoEscolta() {
+        const queden = ESCOLTES - P.escoltes;
+        el.bEscolta.textContent = `🔁 Torna-ho a escoltar (${queden})`;
+        el.bEscolta.disabled = P.ocupat || P.respost || queden <= 0;
+    }
+
+    const INSTRUCCIO = {
+        tria: 'Quina partitura ha sonat? Tria <b>A</b>, <b>B</b> o <b>C</b>.',
+        error: 'Una figura <b>no coincideix</b> amb l\'eco: toca-la!',
+        completa: 'Quin fragment falta? Tria <b>A</b>, <b>B</b> o <b>C</b>.',
+    };
+
+    async function escolta(repeticio) {
+        if (P.ocupat || P.respost) return;
+        if (repeticio) { if (P.escoltes >= ESCOLTES) return; P.escoltes++; }
+        P.ocupat = true;
+        el.zona.classList.add('esperant');
+        botoEscolta();
+        el.estat.innerHTML = '👂 Escolta l\'eco... <b>1, 2, 3, 4</b> i comença!';
+        await toca(P.so, { enCop: i => { if (!FIGURES[P.so[i]].silenci) ecoPica(); } });
+        P.ocupat = false;
+        el.zona.classList.remove('esperant');
+        botoEscolta();
+        el.estat.innerHTML = INSTRUCCIO[P.R.tipus];
+    }
+
+    // Partitura correcta (per veure com sonava l'eco)
+    function mostraSolucio() {
+        const d = document.createElement('div');
+        d.className = 'j-paper partitura-gran solucio j-entra be-marc';
+        d.innerHTML = `<span class="lletra">AIXÍ SONAVA L'ECO</span>${partituraHTML(P.so)}`;
+        el.zona.appendChild(d);
+        return d;
+    }
+
+    // Respostes de cada tipus
+    function triaOpcio(k) {
+        if (P.ocupat || P.respost || !P.R || P.R.tipus === 'error') return;
+        const R = P.R;
+        const sel = R.tipus === 'tria' ? '.opcio-ritme' : '.opcio-cel';
+        const botons = [...el.zona.querySelectorAll(sel)];
+        botons.forEach(b => { b.disabled = true; });
+        const ok = k === R.correcte;
+        botons[R.correcte].classList.add('be-marc');
+        if (!ok) botons[k].classList.add('mal-marc');
+        if (R.tipus === 'completa') {
+            // Omple el forat amb el fragment correcte
+            const forat = $('.forat', el.zona);
+            forat.innerHTML = Joc.ritmeHTML(R.opcions[R.correcte], { mida: midaDe(P.so.length) + .2 });
+            forat.classList.add('omplert');
+        }
+        resol(ok, () => (R.tipus === 'tria' ? botons[R.correcte] : mostraSolucio()));
+    }
+
+    function trobaError(i) {
+        if (P.ocupat || P.respost || !P.R || P.R.tipus !== 'error') return;
+        const R = P.R, ok = i >= R.inici && i < R.fi;
+        el.zona.querySelectorAll('.j-ritme [data-i]').forEach(s => {
+            const k = +s.dataset.i;
+            if (k >= R.inici && k < R.fi) s.classList.add('bona');
+            if (k === i && !ok) s.classList.add('mal');
+            s.tabIndex = -1;
+        });
+        resol(ok, mostraSolucio);
+        if (ok) mostraSolucio();
+    }
+
+    // Final comú d'una ronda: castanyes, ratxa, reaccions i, si cal, tornar-ho a escoltar
+    async function resol(ok, solucio) {
+        P.respost = true;
+        botoEscolta();
+        if (ok) {
+            const guany = 3 - P.escoltes;
+            P.castanyes += guany; P.ratxa++; P.millor = Math.max(P.millor, P.ratxa); P.ronda++;
+            so.be();
+            Joc.toast(`Correcte! +${guany} 🌰`, 'be');
+            el.estat.innerHTML = `Eco atrapat! Has guanyat <b>${guany} ${guany === 1 ? 'castanya' : 'castanyes'}</b>.`;
+            reacciona(true);
+            hud();
+            el.bSeguent.textContent = P.ronda >= RONDES ? 'Fes callar l\'últim eco! ✨' : 'Següent eco →';
+        } else {
+            P.ratxa = 0; P.errors++; P.vides--;
+            so.malament();
+            if (cors[P.vides]) Joc.reinicia(cors[P.vides], 'cau');
+            if (P.vides > 0) reacciona(false);
+            hud();
+            el.estat.innerHTML = `No era aquesta! Perds una vida 🕯️ (${P.vides === 1 ? 'en queda 1' : `en queden ${P.vides}`}). Escolta com sonava l'eco <b>(en verd)</b>.`;
+            await Joc.espera(700);
+            P.ocupat = true;
+            const cont = solucio();
+            await toca(P.so, { compte: 0, enCop: i => { ressalta(cont, i); if (!FIGURES[P.so[i]].silenci) ecoPica(); } });
+            ressalta(cont, -1);
+            P.ocupat = false;
+            if (P.vides <= 0) { sensVides(); return; }
+            el.estat.innerHTML = 'Cal atrapar cada eco per avançar: tornem-ho a provar amb <b>un altre eco</b>.';
+            el.bSeguent.textContent = 'Un altre eco →';
+        }
+        el.bEscolta.hidden = true;
+        el.bSeguent.hidden = false;
+        el.bSeguent.focus();
+    }
+
+    function reacciona(be) {
+        if (be) {
+            if (P.ratxa === 3) Joc.diu('marrameu', 'Tres ecos seguits! Tens <b>orelles de gat</b>, miau!');
+            else if (P.ratxa === 6) Joc.diu('marrameu', 'Sis seguits! Ets un <b>miau-stre</b> del ritme!');
+            else if (P.ratxa === 9) Joc.diu('castanyera', 'Tots a la primera tirada! Quina orella, criatures!');
+            else if (P.ronda === 5) Joc.diu('castanyera', 'Quina orella més fina, fills meus! Ja heu passat <b>la meitat</b> dels ecos.');
+            else if (P.escoltes === 0 && P.ronda > 1) Joc.diu('castanyera', 'A la primera! Ni la meva àvia ho feia tan bé.', 2600);
+        } else if (P.vides === 1) {
+            Joc.diu('castanyera', 'Ai, que només us queda <b>una vida</b>! Escolteu-lo bé abans de triar, criatures.', 4000);
+        } else if (P.errors === 1) {
+            Joc.diu('marrameu', 'Miau... aquest eco era traïdor. Fixa\'t on cauen els cops respecte del <b>pols</b>.');
+        } else {
+            Joc.diu('castanyera', 'No passa res, rei! Compta <b>1, 2, 3, 4</b> mentre sona i ho veuràs més clar.');
+        }
+    }
+
+    el.bEscolta.addEventListener('click', () => escolta(true));
+    el.bSeguent.addEventListener('click', () => {
+        if (P.ocupat) return;
+        so.clic();
+        if (P.ronda >= RONDES) { final(); return; }
+        if (P.ronda === 3 && !P.avisCorxeres) { P.avisCorxeres = true; Joc.diu('marrameu', 'Ara arriben les <b>corxeres</b>: dues per cada temps, ràpides com un ratolí!'); }
+        if (P.ronda === 6 && !P.avisDificil) { P.avisDificil = true; Joc.diu('marrameu', 'Ecos difícils! <b>Negra amb punt + corxera</b> i <b>silencis</b>. Orelles amunt!'); }
+        novaRonda();
+    });
+
+    // ---------- Teclat: 1–3 o A–C per triar, R per tornar a escoltar ----------
+    document.addEventListener('keydown', e => {
+        if (e.metaKey || e.ctrlKey || e.altKey || document.querySelector('.j-dialeg') || document.querySelector('.j-premi.obert') || !P.R) return;
+        const k = e.key.toLowerCase();
+        const i = ['1', '2', '3'].includes(k) ? +k - 1 : ['a', 'b', 'c'].indexOf(k);
+        if (i >= 0 && P.R.tipus !== 'error') { e.preventDefault(); triaOpcio(i); }
+        else if (k === 'r') { e.preventDefault(); escolta(true); }
+    });
+
+    // ---------- Sense vides: el Bruixot us atrapa i es torna a començar ----------
+    function sensVides() {
+        el.bEscolta.hidden = true;
+        el.bSeguent.hidden = true;
+        Joc.fracas({
+            motiu: 'Els ecos us han fet perdre les <b>3 vides</b>! Tornareu a començar des del primer eco, amb ritmes nous.',
+            reinicia: () => {
+                Object.assign(P, { ronda: 0, castanyes: 0, ratxa: 0, millor: 0, errors: 0, vides: VIDES, usats: new Set(), R: null, avisCorxeres: false, avisDificil: false });
+                PLA = planifica();
+                Joc.diu('marrameu', 'Miau, tornem-hi! Aquesta vegada, <b>orelles de gat</b> des del primer eco.', 3500);
+                novaRonda();
+            },
+        });
+    }
+
+    // ---------- Final ----------
+    function final() {
+        P.respost = true;
+        el.bSeguent.hidden = true;
+        el.estat.innerHTML = '🤫 Shhh... els ecos han callat.';
+        Joc.guanya({
+            repte: 2,
+            missatge: 'Els ecos de l\'esternut ja no reboten per la plaça.',
+            resum: `Castanyes: <b>${P.castanyes}/${RONDES * 3}</b> · Millor ratxa: <b>${P.millor}</b>`,
+            epileg: [
+                { qui: 'marrameu', text: 'Shhh... ho sentiu? Res de res! <b>Els ecos han callat</b> i la plaça torna a estar tranquil·la. Miau-ravellós!' },
+                { qui: 'castanyera', text: 'Ai, ai, ai! <b>Les meves castanyes!</b> Amb tant d\'enrenou les he deixat al foc i ara <b>se\'m cremen</b>!' },
+                { qui: 'castanyera', text: 'Correu, criatures, veniu a <b>la meva parada</b> i ajudeu-me, que sense castanyes no hi ha Castanyada! Us espera el <b>Repte III</b>.' },
+            ],
+        });
+    }
+
+    // ---------- Inici ----------
+    Joc.capcalera({ repte: 2, titol: 'La Plaça del Marrameu' });
+    hud();
+    (async () => {
+        await Joc.dialeg([
+            { qui: 'marrameu', text: 'Benvinguts a <b>la Plaça del Marrameu</b>, la meva plaça preferida! Però avui hi ressona un soroll molt estrany...' },
+            { qui: 'castanyera', text: 'Ai, fills meus! L\'esternut del Bruixot ha deixat <b>ecos rítmics</b> per tota la plaça, i no paren de rebotar entre les parets!' },
+            { qui: 'marrameu', text: 'Per fer-los callar, cal <b>atrapar-los</b>: sonarà un ritme de 4/4 i triareu la <b>partitura</b> que hi correspon. Alguns ecos fan trampes: caldrà <b>trobar l\'error</b> o <b>completar el compàs</b>. Com menys cops l\'escolteu (màxim 2 repeticions), més castanyes!' },
+            { qui: 'castanyera', text: 'Però aneu amb compte: teniu <b>3 vides</b> per a tota la plaça. Cada resposta equivocada en costa una i, si les perdeu totes, <b>el Bruixot us atrapa</b>, perdeu temps i torneu a començar!' },
+        ], { boto: 'Escoltem!' });
+        novaRonda();
+    })();
+})();
+</script>
+</body>
+</html>
